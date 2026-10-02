@@ -1,0 +1,12 @@
+# Codex CLI, Roast Judge workshop. Copy to .envrc in the repo root (direnv users: `direnv allow`),
+# or just paste the two export lines into the shell you run `codex` from.
+#
+# CODEX_HOME moves Codex's home into the repo, so the [otel] block in .codex-home/config.toml
+# (template: telemetry/codex-config.toml) applies here and nowhere else. A fresh home means one
+# `codex login` inside it. Telemetry goes to https://api.eu1.honeycomb.io (set in that config.toml).
+export CODEX_HOME=$PWD/.codex-home
+
+# Your seat number from the seat card, attached to every span, event and metric.
+export OTEL_RESOURCE_ATTRIBUTES=seat=<SEAT>
+
+# Not used here, but the config.toml needs your key in place of <KEY>.
