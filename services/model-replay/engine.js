@@ -227,12 +227,36 @@ function plan(ctx, conv) {
   return [[{ name: 'compare_to_benchmarks', args: { scores: latestScores(ctx, conv), pub } }]];
 }
 
+/** The clause with pub names cut out, so "The Soggy Bottom" never reads as a soggy roast. */
+function withoutPubs(clause) {
+  const lower = String(clause).toLowerCase();
+  let out = String(clause);
+  for (const s of pubSpans(lower).reverse()) out = out.slice(0, s.start) + out.slice(s.end);
+  return out.replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * The reviewer's notes about one component: every clause that mentions it, plus the clauses
+ * straight after it that mention no other component ("Yorkshire perfect, risen, crisp" is all
+ * about the Yorkshire). Clauses split at . ! ? , ; and a new sentence starts a new topic.
+ */
 function notesFor(component, text) {
   const comp = components.find((c) => c.id === component);
-  const sentences = String(text).split(/(?<=[.!?,;])\s+/);
-  const lower = (s) => stripPubs(s);
-  const hit = sentences.find((s) => comp.keywords.some((k) => lower(s).includes(k)));
-  return hit ? hit.trim() : `No specific comment on the ${pretty(component)}.`;
+  const mentions = (clause) => {
+    const lower = stripPubs(clause);
+    return components.filter((c) => c.keywords.some((k) => lower.includes(k.toLowerCase()))).map((c) => c.id);
+  };
+  const notes = [];
+  let topic = [];
+  for (const sentence of String(text).split(/(?<=[.!?])\s+/)) {
+    topic = [];
+    for (const clause of sentence.split(/(?<=[,;])\s+/)) {
+      const ids = mentions(clause);
+      if (ids.length) topic = ids;
+      if (topic.includes(comp.id)) notes.push(withoutPubs(clause));
+    }
+  }
+  return notes.length ? notes.join(' ') : `No specific comment on the ${pretty(component)}.`;
 }
 
 function disputedComponent(ctx) {
