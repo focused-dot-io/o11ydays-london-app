@@ -5,7 +5,7 @@
   "description": "Roast Judge: the demo app for the Focused workshop at Honeycomb o11ydays London",
   "engines": { "node": ">=22.13" },
   "scripts": {
-    "test": "node --disable-warning=ExperimentalWarning --test test/",
+    "test": "node --disable-warning=ExperimentalWarning --test \"test/**/*.test.js\"",
     "start": "node --require ./src/telemetry.js --disable-warning=ExperimentalWarning src/server.js",
     "start:pub-guide": "node --require ./services/pub-guide/telemetry.js --disable-warning=ExperimentalWarning services/pub-guide/server.js",
     "start:replay": "node --disable-warning=ExperimentalWarning services/model-replay/server.js",
