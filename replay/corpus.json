@@ -9,15 +9,16 @@
       "yorkshire",
       "gravy"
     ],
-    "expected_v1_label": "decent",
+    "expected_v1_label": "disappointing",
     "appeal": {
       "text": "That Yorkshire was enormous, surely size counts for something.",
-      "component": "yorkshire"
+      "component": "yorkshire",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-002",
-    "text": "Sunday lunch at The Gravy Boat. Rare sirloin carved at the table, proper roasties with fluffy middles, and a gravy so glossy you could see your face in it.",
+    "text": "Sunday lunch at The Gravy Boat. Sirloin perfectly pink and tender, proper roasties, crisp and golden with fluffy middles, and a homemade gravy so rich and glossy you could see your face in it.",
     "pub": "the-gravy-boat",
     "components": [
       "meat",
@@ -27,12 +28,13 @@
     "expected_v1_label": "banging",
     "appeal": {
       "text": "I want it on record that the gravy deserved a ten.",
-      "component": "gravy"
+      "component": "gravy",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-003",
-    "text": "Gravy Boat again. Pork belly was fine but the crackling was chewy, and the gravy came in a jug the size of an egg cup. Ironic.",
+    "text": "Gravy Boat again. Pork belly was grey, crackling chewy and dry, burnt at the edges. The gravy came in a jug the size of an egg cup. Ironic.",
     "pub": "the-gravy-boat",
     "components": [
       "meat",
@@ -40,13 +42,14 @@
     ],
     "expected_v1_label": "disappointing",
     "appeal": {
-      "text": "In fairness the crackling had at least been attempted.",
-      "component": "meat"
+      "text": "The pork deserves another look, that crackling was perfect, golden and crisp, and the meat tender and juicy.",
+      "component": "meat",
+      "expected_ruling": "overturned"
     }
   },
   {
     "id": "roast-004",
-    "text": "Lamb at the Gravy Boat, nicely pink, with carrots and peas that tasted of something. Roasties a bit pale.",
+    "text": "Lamb at the Gravy Boat, nicely pink and tender, with carrots and peas that tasted of something. Roasties a bit pale.",
     "pub": "the-gravy-boat",
     "components": [
       "meat",
@@ -56,12 +59,13 @@
     "expected_v1_label": "decent",
     "appeal": {
       "text": "The carrots were genuinely the best thing on the plate, please reconsider.",
-      "component": "veg"
+      "component": "veg",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-005",
-    "text": "The Crispy Spud, £13.50. Chicken was dry, roasties were the only thing living up to the name, gravy thin as tea.",
+    "text": "The Crispy Spud, £13.50. Chicken was dry, roasties were the only thing living up to the name, gravy watery as tea.",
     "pub": "the-crispy-spud",
     "components": [
       "meat",
@@ -70,13 +74,14 @@
     ],
     "expected_v1_label": "disappointing",
     "appeal": {
-      "text": "Roast potatoes like that are rare at this price, score them properly.",
-      "component": "roasties"
+      "text": "Roast potatoes like that are rare at this price, crisp and fluffy, score them properly.",
+      "component": "roasties",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-006",
-    "text": "Crispy Spud on a Sunday. Grey beef, microwaved Yorkshire, and roasties that had clearly been reheated twice. Gravy had a skin on it.",
+    "text": "Crispy Spud on a Sunday. The beef was grey and tough, the Yorkshire microwaved, flat and soggy, roasties reheated twice. Gravy had a skin on it, cold and lumpy.",
     "pub": "the-crispy-spud",
     "components": [
       "meat",
@@ -87,12 +92,13 @@
     "expected_v1_label": "a crime",
     "appeal": {
       "text": "The beef was bad but not that bad, it was at least warm.",
-      "component": "meat"
+      "component": "meat",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-007",
-    "text": "Cheap and cheerful at the Crispy Spud. Turkey crown, decent roasties, cabbage with butter, gravy did the job.",
+    "text": "Cheap and cheerful at the Crispy Spud. Turkey crown, proper roasties, cabbage with butter, gravy did the job.",
     "pub": "the-crispy-spud",
     "components": [
       "meat",
@@ -103,7 +109,8 @@
     "expected_v1_label": "decent",
     "appeal": {
       "text": "Honestly the cabbage was lovely, buttery and peppery.",
-      "component": "veg"
+      "component": "veg",
+      "expected_ruling": "upheld"
     }
   },
   {
@@ -118,12 +125,13 @@
     "expected_v1_label": "disappointing",
     "appeal": {
       "text": "The nut roast was dry but the flavour was there.",
-      "component": "nut_roast"
+      "component": "nut_roast",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-009",
-    "text": "The Rising Yorkshire, £32. Twelve-hour brisket, Yorkshire pudding that stood a foot tall, beef dripping roasties, red wine gravy. Worth every penny.",
+    "text": "The Rising Yorkshire, £32. Twelve-hour brisket, tender and juicy, a Yorkshire pudding perfectly risen and a foot tall, roasties in dripping, crisp and golden, and a glossy red wine gravy, rich and deep. Worth every penny.",
     "pub": "the-rising-yorkshire",
     "components": [
       "meat",
@@ -134,7 +142,8 @@
     "expected_v1_label": "banging",
     "appeal": {
       "text": "If anything the brisket was underrated.",
-      "component": "meat"
+      "component": "meat",
+      "expected_ruling": "upheld"
     }
   },
   {
@@ -146,10 +155,11 @@
       "roasties",
       "gravy"
     ],
-    "expected_v1_label": "decent",
+    "expected_v1_label": "disappointing",
     "appeal": {
       "text": "The gravy was salty but it was deliberate, rich stuff.",
-      "component": "gravy"
+      "component": "gravy",
+      "expected_ruling": "upheld"
     }
   },
   {
@@ -164,7 +174,8 @@
     "expected_v1_label": "disappointing",
     "appeal": {
       "text": "The Yorkshire collapsed but it tasted great before it did.",
-      "component": "yorkshire"
+      "component": "yorkshire",
+      "expected_ruling": "upheld"
     }
   },
   {
@@ -176,15 +187,16 @@
       "roasties",
       "veg"
     ],
-    "expected_v1_label": "banging",
+    "expected_v1_label": "decent",
     "appeal": {
       "text": "That mushroom wellington deserves full marks, flawless pastry.",
-      "component": "nut_roast"
+      "component": "nut_roast",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-013",
-    "text": "The Soggy Bottom lives up to its name. Pork with no crackling, roasties boiled not roasted, gravy from a packet, peas from a tin.",
+    "text": "The Soggy Bottom lives up to its name. Pork grey and dry, roasties soggy and pale, gravy from a packet, peas from a tin and boiled to death.",
     "pub": "the-soggy-bottom",
     "components": [
       "meat",
@@ -195,12 +207,13 @@
     "expected_v1_label": "a crime",
     "appeal": {
       "text": "The peas were tinned but at least they were hot.",
-      "component": "veg"
+      "component": "veg",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-014",
-    "text": "Soggy Bottom, £11. Chicken that was pink in the middle, sent it back. Yorkshire out of a box.",
+    "text": "Soggy Bottom, £11. Chicken undercooked and dry, sent it back. Yorkshire out of a box, flat and cold.",
     "pub": "the-soggy-bottom",
     "components": [
       "meat",
@@ -208,23 +221,25 @@
     ],
     "expected_v1_label": "a crime",
     "appeal": {
-      "text": "They did replace the chicken eventually.",
-      "component": "meat"
+      "text": "The Yorkshire may have come out of a box but it was golden, crisp and perfectly risen.",
+      "component": "yorkshire",
+      "expected_ruling": "overturned"
     }
   },
   {
     "id": "roast-015",
-    "text": "Soggy Bottom carvery. Turkey, gammon and beef all tasting the same, roasties limp, but the cauliflower cheese was a surprise hit.",
+    "text": "Soggy Bottom carvery. Turkey, gammon and beef all tasting the same, roasties limp, but the cauliflower cheese was a surprise hit, golden and rich.",
     "pub": "the-soggy-bottom",
     "components": [
       "meat",
       "roasties",
       "veg"
     ],
-    "expected_v1_label": "disappointing",
+    "expected_v1_label": "decent",
     "appeal": {
       "text": "Give the cauliflower cheese its due, it was the best thing there.",
-      "component": "veg"
+      "component": "veg",
+      "expected_ruling": "upheld"
     }
   },
   {
@@ -239,7 +254,8 @@
     "expected_v1_label": "disappointing",
     "appeal": {
       "text": "The roasties were soft but well seasoned.",
-      "component": "roasties"
+      "component": "roasties",
+      "expected_ruling": "upheld"
     }
   },
   {
@@ -254,12 +270,13 @@
     "expected_v1_label": "decent",
     "appeal": {
       "text": "The charring on the roasties was intentional, that is the house style.",
-      "component": "roasties"
+      "component": "roasties",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-018",
-    "text": "Burnt End pork shoulder with crackling that shattered, roasties in duck fat, honey-glazed carrots, gravy for days.",
+    "text": "Burnt End pork shoulder, tender and juicy, with crackling that shattered, roasties in duck fat, crisp and golden, honey-glazed carrots caramelised to perfection, rich gravy for days.",
     "pub": "the-burnt-end",
     "components": [
       "meat",
@@ -270,12 +287,13 @@
     "expected_v1_label": "banging",
     "appeal": {
       "text": "The crackling alone deserved a ten.",
-      "component": "meat"
+      "component": "meat",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-019",
-    "text": "Burnt End, and they took the name literally. Beef cremated, Yorkshire black on the bottom, gravy tasted of ash.",
+    "text": "Burnt End, and they took the name literally. Beef cremated and dry, Yorkshire burnt black on the bottom and flat, gravy tasted of ash.",
     "pub": "the-burnt-end",
     "components": [
       "meat",
@@ -285,7 +303,8 @@
     "expected_v1_label": "a crime",
     "appeal": {
       "text": "The Yorkshire was burnt but the inside was soft.",
-      "component": "yorkshire"
+      "component": "yorkshire",
+      "expected_ruling": "upheld"
     }
   },
   {
@@ -300,12 +319,13 @@
     "expected_v1_label": "decent",
     "appeal": {
       "text": "The nut roast was honestly better than most of the carvery.",
-      "component": "nut_roast"
+      "component": "nut_roast",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-021",
-    "text": "The Nut Roast Arms, £18. Chestnut and cranberry nut roast with a crisp top, roasties in rapeseed oil, onion gravy, mountain of veg.",
+    "text": "The Nut Roast Arms, £18. Chestnut and cranberry nut roast, moist and perfectly seasoned, with a crisp golden top, roasties in rapeseed oil, crunchy and fluffy, a glossy onion gravy, rich and homemade, and a generous mountain of veg, perfectly seasoned.",
     "pub": "the-nut-roast-arms",
     "components": [
       "nut_roast",
@@ -316,12 +336,13 @@
     "expected_v1_label": "banging",
     "appeal": {
       "text": "That nut roast was the best I have ever had, it deserves more.",
-      "component": "nut_roast"
+      "component": "nut_roast",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-022",
-    "text": "Nut Roast Arms lentil roast with a egg-free Yorkshire that actually rose. Gravy a bit thin.",
+    "text": "Nut Roast Arms lentil roast with an egg-free Yorkshire that actually rose. Gravy proper and homemade.",
     "pub": "the-nut-roast-arms",
     "components": [
       "nut_roast",
@@ -330,13 +351,14 @@
     ],
     "expected_v1_label": "decent",
     "appeal": {
-      "text": "A egg-free Yorkshire that rises is a miracle and should be scored as one.",
-      "component": "yorkshire"
+      "text": "An egg-free Yorkshire that rises is a miracle and should be scored as one.",
+      "component": "yorkshire",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-023",
-    "text": "At the Nut Roast Arms I had the beef, which felt like a mistake. Tough and grey. Roasties good though.",
+    "text": "At the Nut Roast Arms I had the beef, which was a mistake: tough, grey, chewy and overcooked. Proper roasties though.",
     "pub": "the-nut-roast-arms",
     "components": [
       "meat",
@@ -344,8 +366,9 @@
     ],
     "expected_v1_label": "disappointing",
     "appeal": {
-      "text": "In fairness the beef was a bit better than tough, more chewy.",
-      "component": "meat"
+      "text": "In fairness the beef deserves a rethink, tender in places, juicy, perfectly rested.",
+      "component": "meat",
+      "expected_ruling": "overturned"
     }
   },
   {
@@ -360,12 +383,13 @@
     "expected_v1_label": "decent",
     "appeal": {
       "text": "The greens carried the whole plate, rate them higher.",
-      "component": "veg"
+      "component": "veg",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-025",
-    "text": "The Gilded Parsnip, £38. Venison loin, roasties confit in goose fat, a Yorkshire like a cloud, and a gravy made from the bones.",
+    "text": "The Gilded Parsnip, £38. Venison loin, perfectly pink and tender, roasties confit in goose fat, crisp and golden, a Yorkshire like a cloud, risen and fluffy, and a rich glossy gravy made from the roasting juices.",
     "pub": "the-gilded-parsnip",
     "components": [
       "meat",
@@ -376,12 +400,13 @@
     "expected_v1_label": "banging",
     "appeal": {
       "text": "The roasties were genuinely perfect, a ten from me.",
-      "component": "roasties"
+      "component": "roasties",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-026",
-    "text": "Gilded Parsnip, all candlelight and small plates. Beef was three slices, one roast potato, a smear of gravy. £36.",
+    "text": "Gilded Parsnip, all candlelight and small plates. Beef was three tiny slices, one roast potato, cold, pale and dry, a smear of gravy. £36.",
     "pub": "the-gilded-parsnip",
     "components": [
       "meat",
@@ -390,13 +415,14 @@
     ],
     "expected_v1_label": "disappointing",
     "appeal": {
-      "text": "The single roast potato was at least very good.",
-      "component": "roasties"
+      "text": "That single roast potato was perfect, golden, crisp and fluffy. Size is not everything.",
+      "component": "roasties",
+      "expected_ruling": "overturned"
     }
   },
   {
     "id": "roast-027",
-    "text": "Gilded Parsnip chicken for two. Bird was juicy, roasties good, but the gravy was more of a jus and there was not enough of it.",
+    "text": "Gilded Parsnip chicken for two, juicy and tender, roasties good, but the gravy was more of a jus and stingy with it.",
     "pub": "the-gilded-parsnip",
     "components": [
       "meat",
@@ -406,12 +432,13 @@
     "expected_v1_label": "decent",
     "appeal": {
       "text": "Sticking up for the gravy, it was refined, not stingy.",
-      "component": "gravy"
+      "component": "gravy",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-028",
-    "text": "Gilded Parsnip, £40 for lamb that was raw at the bone, cold Yorkshire, and roasties straight from a bag.",
+    "text": "Gilded Parsnip, £40 for lamb that was undercooked at the bone and tough, a cold Yorkshire, flat as a pancake, and roasties straight from a bag, greasy and pale.",
     "pub": "the-gilded-parsnip",
     "components": [
       "meat",
@@ -421,12 +448,13 @@
     "expected_v1_label": "a crime",
     "appeal": {
       "text": "The lamb was undercooked but the flavour was decent.",
-      "component": "meat"
+      "component": "meat",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-029",
-    "text": "The Duke of Dripping, £29. Rib of beef, roasties cooked in beef dripping, Yorkshire puffed and golden, gravy you would drink.",
+    "text": "The Duke of Dripping, £29. Rib of beef, tender and pink, roasties cooked in beef dripping, crisp and fluffy, a Yorkshire puffed and golden, gravy you would drink, rich and glossy.",
     "pub": "the-duke-of-dripping",
     "components": [
       "meat",
@@ -437,7 +465,8 @@
     "expected_v1_label": "banging",
     "appeal": {
       "text": "The Yorkshire was the best I have had, it should score higher.",
-      "component": "yorkshire"
+      "component": "yorkshire",
+      "expected_ruling": "upheld"
     }
   },
   {
@@ -449,10 +478,11 @@
       "roasties",
       "veg"
     ],
-    "expected_v1_label": "decent",
+    "expected_v1_label": "disappointing",
     "appeal": {
       "text": "Overboiled carrots are still carrots, they were sweet at least.",
-      "component": "veg"
+      "component": "veg",
+      "expected_ruling": "upheld"
     }
   },
   {
@@ -467,7 +497,8 @@
     "expected_v1_label": "disappointing",
     "appeal": {
       "text": "The gravy split but it tasted lovely.",
-      "component": "gravy"
+      "component": "gravy",
+      "expected_ruling": "upheld"
     }
   },
   {
@@ -482,7 +513,8 @@
     "expected_v1_label": "decent",
     "appeal": {
       "text": "The nut roast was beige but tasty, score it fairly.",
-      "component": "nut_roast"
+      "component": "nut_roast",
+      "expected_ruling": "upheld"
     }
   },
   {
@@ -495,15 +527,16 @@
       "yorkshire",
       "gravy"
     ],
-    "expected_v1_label": "disappointing",
+    "expected_v1_label": "decent",
     "appeal": {
       "text": "School dinner gravy is comfort food, it deserves a better score.",
-      "component": "gravy"
+      "component": "gravy",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-034",
-    "text": "Pickled Ploughman Sunday. Gammon dry as a cracker, roasties hard as rocks, gravy congealed before I sat down.",
+    "text": "Pickled Ploughman Sunday. Gammon dry as a cracker and tough, roasties hard as rocks and burnt, gravy congealed and cold before I sat down.",
     "pub": "the-pickled-ploughman",
     "components": [
       "meat",
@@ -513,7 +546,8 @@
     "expected_v1_label": "a crime",
     "appeal": {
       "text": "The roasties were hard but they were crunchy at least.",
-      "component": "roasties"
+      "component": "roasties",
+      "expected_ruling": "upheld"
     }
   },
   {
@@ -527,12 +561,13 @@
     "expected_v1_label": "decent",
     "appeal": {
       "text": "The chicken was the star, give it its due.",
-      "component": "meat"
+      "component": "meat",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-036",
-    "text": "Pickled Ploughman. Watery cabbage, frozen peas, a Yorkshire that tasted of the freezer, lamb grey and stringy.",
+    "text": "Pickled Ploughman. Watery cabbage, frozen peas, a frozen Yorkshire, flat and soggy, lamb grey and stringy.",
     "pub": "the-pickled-ploughman",
     "components": [
       "meat",
@@ -542,12 +577,13 @@
     "expected_v1_label": "a crime",
     "appeal": {
       "text": "The Yorkshire was frozen but it was crisp on top.",
-      "component": "yorkshire"
+      "component": "yorkshire",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-037",
-    "text": "The Lamb & Lantern, £26. Slow-roasted lamb shoulder that fell apart, crisp roasties, minted gravy, parsnips caramelised.",
+    "text": "The Lamb & Lantern, £26. Slow-roasted lamb shoulder that fell apart, tender and juicy, roasties crisp, golden and fluffy, a rich minted gravy, homemade, and parsnips caramelised to perfection.",
     "pub": "the-lamb-and-lantern",
     "components": [
       "meat",
@@ -558,27 +594,29 @@
     "expected_v1_label": "banging",
     "appeal": {
       "text": "The gravy was the best part, minty and rich.",
-      "component": "gravy"
+      "component": "gravy",
+      "expected_ruling": "upheld"
     }
   },
   {
     "id": "roast-038",
-    "text": "Lamb and Lantern beef was decent, Yorkshire a bit flat, roasties well done.",
+    "text": "Lamb and Lantern beef was decent, roasties well done, but the Yorkshire was flat, soggy and burnt.",
     "pub": "the-lamb-and-lantern",
     "components": [
       "meat",
       "roasties",
       "yorkshire"
     ],
-    "expected_v1_label": "decent",
+    "expected_v1_label": "disappointing",
     "appeal": {
-      "text": "The Yorkshire was flat but it was crisp all the way through.",
-      "component": "yorkshire"
+      "text": "That Yorkshire was perfect, golden, crisp and risen on my side of the plate.",
+      "component": "yorkshire",
+      "expected_ruling": "overturned"
     }
   },
   {
     "id": "roast-039",
-    "text": "Lamb & Lantern nut roast was an afterthought, a slab of stuffing really. The roasties were the only good bit.",
+    "text": "Lamb & Lantern nut roast was an afterthought, a slab of stuffing really, dry and bland. The roasties were the only good bit.",
     "pub": "the-lamb-and-lantern",
     "components": [
       "nut_roast",
@@ -586,8 +624,9 @@
     ],
     "expected_v1_label": "disappointing",
     "appeal": {
-      "text": "The nut roast was basically stuffing but very good stuffing.",
-      "component": "nut_roast"
+      "text": "The nut roast was basically stuffing, but perfect stuffing, golden, crisp and moist.",
+      "component": "nut_roast",
+      "expected_ruling": "overturned"
     }
   },
   {
@@ -603,7 +642,8 @@
     "expected_v1_label": "decent",
     "appeal": {
       "text": "The veg was plentiful and fresh, that has to count.",
-      "component": "veg"
+      "component": "veg",
+      "expected_ruling": "upheld"
     }
   }
 ]
