@@ -7,7 +7,7 @@
     "OTEL_TRACES_EXPORTER": "otlp",
     "CLAUDE_CODE_ENHANCED_TELEMETRY_BETA": "1",
     "OTEL_EXPORTER_OTLP_PROTOCOL": "http/protobuf",
-    "OTEL_EXPORTER_OTLP_ENDPOINT": "https://api.eu1.honeycomb.io",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "https://api.honeycomb.io",
     "OTEL_EXPORTER_OTLP_HEADERS": "x-honeycomb-team=<KEY>",
     "OTEL_EXPORTER_OTLP_METRICS_HEADERS": "x-honeycomb-team=<KEY>,x-honeycomb-dataset=agent-metrics",
     "OTEL_RESOURCE_ATTRIBUTES": "seat=<SEAT>",

@@ -3,7 +3,7 @@
 // Loaded with `node --require ./src/telemetry.js` so instrumentation patches modules
 // before the app requires them. Env:
 //   ROASTJUDGE_EXPORTER=otlp|console|memory (default otlp)
-//   HONEYCOMB_API_KEY, HONEYCOMB_ENDPOINT (default https://api.eu1.honeycomb.io)
+//   HONEYCOMB_API_KEY, HONEYCOMB_ENDPOINT (default https://api.honeycomb.io)
 //   SEAT (default 0), OTEL_SERVICE_NAME (override), REPLAY_URL
 //   OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=true to copy prompts/completions onto chat spans
 
@@ -55,7 +55,7 @@ if (mode === 'memory') {
 } else if (mode === 'console') {
   exportingProcessor = new SimpleSpanProcessor(new ConsoleSpanExporter());
 } else {
-  const endpoint = (process.env.HONEYCOMB_ENDPOINT || 'https://api.eu1.honeycomb.io').replace(/\/+$/, '');
+  const endpoint = (process.env.HONEYCOMB_ENDPOINT || 'https://api.honeycomb.io').replace(/\/+$/, '');
   exportingProcessor = new BatchSpanProcessor(
     new OTLPTraceExporter({
       url: `${endpoint}/v1/traces`,

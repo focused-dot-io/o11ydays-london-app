@@ -14,7 +14,7 @@ log_user_prompt = false
 
 # Events (codex.sse_event, codex.tool_result, ...) as OTLP logs -> dataset codex_cli_rs.
 [otel.exporter.otlp-http]
-endpoint = "https://api.eu1.honeycomb.io/v1/logs"
+endpoint = "https://api.honeycomb.io/v1/logs"
 protocol = "binary"
 
 [otel.exporter.otlp-http.headers]
@@ -22,7 +22,7 @@ protocol = "binary"
 
 # Traces -> dataset codex_cli_rs.
 [otel.trace_exporter.otlp-http]
-endpoint = "https://api.eu1.honeycomb.io/v1/traces"
+endpoint = "https://api.honeycomb.io/v1/traces"
 protocol = "binary"
 
 [otel.trace_exporter.otlp-http.headers]
@@ -30,7 +30,7 @@ protocol = "binary"
 
 # Metrics default to OpenAI's own endpoint (statsig). Send them to the shared agent-metrics dataset.
 [otel.metrics_exporter.otlp-http]
-endpoint = "https://api.eu1.honeycomb.io/v1/metrics"
+endpoint = "https://api.honeycomb.io/v1/metrics"
 protocol = "binary"
 
 [otel.metrics_exporter.otlp-http.headers]

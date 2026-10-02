@@ -2,7 +2,7 @@
 
 // Phase 8: verify-setup.sh (the pre-workshop laptop check).
 // SPEC: "Node >= 22.13, Docker daemon running, `docker compose build` (pinned node:22.22.0-alpine),
-// `npm ci`, TLS reachability of api.eu1.honeycomb.io:443 (openssl or curl, no key), prints PASS or the
+// `npm ci`, TLS reachability of api.honeycomb.io:443 (openssl or curl, no key), prints PASS or the
 // first failure with the fix." "verify-setup.sh never switches branches; it prints the checkout command
 // if you are on main."
 //
@@ -15,14 +15,14 @@
 //      compose   `docker compose version` succeeds
 //      npm       `npm ci` succeeds                      (VERIFY_SKIP_NPM=1 skips it)
 //      build     `docker compose build` succeeds        (VERIFY_SKIP_BUILD=1 skips it)
-//      honeycomb TLS to api.eu1.honeycomb.io:443 via `curl -sS -o /dev/null -w '%{http_code}' https://api.eu1.honeycomb.io/`
+//      honeycomb TLS to api.honeycomb.io:443 via `curl -sS -o /dev/null -w '%{http_code}' https://api.honeycomb.io/`
 //                (any HTTP status counts), falling back to `openssl s_client`   (VERIFY_SKIP_NET=1 skips it;
 //                VERIFY_FAKE_NET_FAIL=1 forces it to fail, a test hook). The failing check may be named
 //                `honeycomb` or `network`.
 //    A skipped check prints `skip <name>` (not asserted) and never `FAIL`.
 //  - On the first failing check: print `FAIL <name>`, then on the next line an indented `fix: <one line>`,
 //    and exit 1 immediately (no later checks, no PASS). Fix texts: node -> mentions Node 22 / nvm;
-//    docker -> mentions starting Docker (Desktop); honeycomb -> mentions api.eu1.honeycomb.io.
+//    docker -> mentions starting Docker (Desktop); honeycomb -> mentions api.honeycomb.io.
 //  - On success the final stdout line is exactly `PASS` and the exit status is 0.
 //  - Branch note (not a failure, before PASS): when `git rev-parse --abbrev-ref HEAD` is `main`, print
 //    `You are on main; the workshop starts on checkpoint-0: npm run catchup -- 0`. Never switches branches.
@@ -104,7 +104,7 @@ test('verify-setup.sh exists at the repo root, is executable, bash, set -uo pipe
   assert.equal(src.split('\n')[0], '#!/usr/bin/env bash');
   assert.match(src, /^set -uo pipefail\s*$/m);
   assert.doesNotMatch(src, /^set -[a-z]*e/m, 'no set -e: the script reports the first failure itself');
-  assert.match(src, /api\.eu1\.honeycomb\.io/);
+  assert.match(src, /api\.honeycomb\.io/);
   assert.doesNotMatch(src, /git\s+(checkout|switch)\b/, 'verify-setup never switches branches');
 });
 
@@ -172,7 +172,7 @@ test('verify-setup.sh: Honeycomb unreachable (VERIFY_FAKE_NET_FAIL=1) -> FAIL ho
   const env = { VERIFY_SKIP_NPM: '1', VERIFY_SKIP_BUILD: '1', VERIFY_FAKE_NET_FAIL: '1', PATH: withPath(shims) };
   const r = await runBash([SCRIPT], { env, timeoutMs: 30000 });
   for (const ok of ['ok node', 'ok docker', 'ok compose']) assert.ok(lines(r.stdout).includes(ok), r.info);
-  assertFail(r, 'honeycomb|network', /api\.eu1\.honeycomb\.io/);
+  assertFail(r, 'honeycomb|network', /api\.honeycomb\.io/);
 });
 
 // A scratch git repo holding a copy of the script (and package.json), on a given branch.

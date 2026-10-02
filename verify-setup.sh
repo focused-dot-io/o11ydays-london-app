@@ -7,12 +7,12 @@
 #   compose    `docker compose` available
 #   npm        `npm ci` installs the app's dependencies     (VERIFY_SKIP_NPM=1 skips)
 #   build      `docker compose build` builds the image      (VERIFY_SKIP_BUILD=1 skips)
-#   honeycomb  TLS to api.eu1.honeycomb.io:443, no API key  (VERIFY_SKIP_NET=1 skips)
+#   honeycomb  TLS to api.honeycomb.io:443, no API key  (VERIFY_SKIP_NET=1 skips)
 # Prints PASS on the last line when everything is fine. It never switches git branches.
 set -uo pipefail
 cd "$(dirname "$0")" || exit 1
 
-HONEYCOMB_HOST="api.eu1.honeycomb.io"
+HONEYCOMB_HOST="api.honeycomb.io"
 
 ok() { echo "ok $1"; }
 skip() { echo "skip $1"; }
@@ -66,7 +66,7 @@ else
   ok build
 fi
 
-# --- honeycomb: can we open TLS to the EU ingest endpoint? Any HTTP status means yes. -----------
+# --- honeycomb: can we open TLS to the US ingest endpoint? Any HTTP status means yes. -----------
 honeycomb_reachable() {
   [ "${VERIFY_FAKE_NET_FAIL:-}" = "1" ] && return 1 # test hook
   if command -v curl > /dev/null 2>&1; then

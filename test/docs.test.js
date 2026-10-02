@@ -5,7 +5,7 @@
 //
 // ASSUMPTIONS (the implementer follows these):
 //  - Template blanks are the literal tokens `<SEAT>` and `<KEY>`; nothing else is a placeholder.
-//  - Templates send to https://api.eu1.honeycomb.io, carry OTEL_RESOURCE_ATTRIBUTES=seat=<SEAT>,
+//  - Templates send to https://api.honeycomb.io, carry OTEL_RESOURCE_ATTRIBUTES=seat=<SEAT>,
 //    route metrics to the `agent-metrics` dataset via x-honeycomb-dataset, and keep prompt content off.
 //  - telemetry/README.md defines the four Module 1 derived columns with COALESCE.
 
@@ -60,7 +60,7 @@ test('README covers setup, lanes, commands, catch-up and the default-branch note
     'default branch',
     'Codespace',
     'roast-judge-<seat>',
-    'ui.eu1.honeycomb.io',
+    'ui.honeycomb.io',
     'telemetry/',
     'tracks/',
   ]) {
@@ -113,10 +113,10 @@ test('telemetry/README.md defines the four Module 1 derived columns', () => {
   assert.match(r, /agent-metrics/);
 });
 
-test('templates: EU endpoint, seat resource attribute, agent-metrics dataset, only <SEAT> and <KEY> blanks', () => {
+test('templates: US endpoint, seat resource attribute, agent-metrics dataset, only <SEAT> and <KEY> blanks', () => {
   for (const f of TEMPLATES) {
     const t = read(f);
-    assert.ok(t.includes('api.eu1.honeycomb.io'), `${f} must point at the EU endpoint`);
+    assert.ok(t.includes('api.honeycomb.io'), `${f} must point at the US endpoint`);
     assert.ok(t.includes('<KEY>'), `${f} must have the <KEY> blank`);
     assert.ok(t.includes('<SEAT>'), `${f} must have the <SEAT> blank`);
     const otherBlanks = (t.match(/<[A-Z_]+>/g) || []).filter((m) => m !== '<SEAT>' && m !== '<KEY>');
@@ -135,7 +135,7 @@ test('Claude Code template is valid JSON with the env block the module describes
   const j = JSON.parse(read('telemetry/claude-settings.local.json'));
   assert.equal(typeof j.env, 'object');
   assert.equal(j.env.CLAUDE_CODE_ENABLE_TELEMETRY, '1');
-  assert.equal(j.env.OTEL_EXPORTER_OTLP_ENDPOINT, 'https://api.eu1.honeycomb.io');
+  assert.equal(j.env.OTEL_EXPORTER_OTLP_ENDPOINT, 'https://api.honeycomb.io');
   assert.equal(j.env.OTEL_EXPORTER_OTLP_PROTOCOL, 'http/protobuf');
   assert.match(j.env.OTEL_EXPORTER_OTLP_HEADERS, /x-honeycomb-team=<KEY>/);
   assert.match(j.env.OTEL_EXPORTER_OTLP_METRICS_HEADERS, /x-honeycomb-dataset=agent-metrics/);
@@ -150,7 +150,7 @@ test('Gemini template is valid JSON with telemetry on and prompts off; gemini.en
   const j = JSON.parse(read('telemetry/gemini-settings.json'));
   assert.equal(j.telemetry.enabled, true);
   assert.equal(j.telemetry.logPrompts, false);
-  assert.match(JSON.stringify(j.telemetry), /api\.eu1\.honeycomb\.io/);
+  assert.match(JSON.stringify(j.telemetry), /api\.honeycomb\.io/);
   const env = read('telemetry/gemini.env');
   assert.match(env, /^OTEL_EXPORTER_OTLP_HEADERS=.*x-honeycomb-team=<KEY>/m);
   assert.match(env, /^OTEL_RESOURCE_ATTRIBUTES=seat=<SEAT>/m);

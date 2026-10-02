@@ -46,7 +46,7 @@ console.log(`Dataset:  ${dataset}`);
 const team = process.env.HONEYCOMB_TEAM_SLUG;
 const env = process.env.HONEYCOMB_ENV_SLUG;
 if (team && env) {
-  console.log(`Open:     https://ui.eu1.honeycomb.io/${team}/environments/${env}/datasets/${dataset}/trace?trace_id=${body.trace_id}`);
+  console.log(`Open:     https://ui.honeycomb.io/${team}/environments/${env}/datasets/${dataset}/trace?trace_id=${body.trace_id}`);
 } else {
   console.log(`Find it:  in Honeycomb open dataset ${dataset}, query WHERE trace.trace_id = ${body.trace_id}, click the trace.`);
 }
