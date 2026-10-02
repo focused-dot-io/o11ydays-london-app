@@ -1,0 +1,84 @@
+# Roast Judge, three services from one image (see Dockerfile):
+#   roast-judge   the app you instrument          http://localhost:3000
+#   pub-guide     the tool backend it calls        http://localhost:4100
+#   model-replay  a recorded OpenAI-compatible LLM http://localhost:4200/v1 (fails every Nth call)
+#
+# `docker compose up` bind-mounts this directory into /app and runs each service with
+# node in watch mode, so saving a file restarts that service. node_modules comes from the image
+# (anonymous volume), not from your laptop.
+#
+# .env is optional. With HONEYCOMB_API_KEY in it, spans go to Honeycomb; without one, they are
+# printed by the console exporter (see `docker compose logs roast-judge`).
+#
+# Host ports can be moved: ROASTJUDGE_PORT, PUB_GUIDE_PORT, REPLAY_PORT. REPLAY_FAIL_EVERY=0 turns
+# off the replay model's injected failures.
+
+services:
+  roast-judge:
+    build: .
+    command: node --watch --require ./src/telemetry.js --disable-warning=ExperimentalWarning src/server.js
+    ports:
+      - "${ROASTJUDGE_PORT:-3000}:3000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      REPLAY_URL: http://model-replay:4200/v1
+      PUB_GUIDE_URL: http://pub-guide:4100
+      PORT: "3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/healthz"]
+      interval: 2s
+      timeout: 3s
+      start_period: 5s
+      retries: 30
+    # Start only once its two dependencies answer /healthz.
+    depends_on:
+      pub-guide:
+        condition: service_healthy
+      model-replay:
+        condition: service_healthy
+    restart: unless-stopped
+
+  pub-guide:
+    build: .
+    command: node --watch --require ./services/pub-guide/telemetry.js --disable-warning=ExperimentalWarning services/pub-guide/server.js
+    ports:
+      - "${PUB_GUIDE_PORT:-4100}:4100"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      PORT: "4100"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4100/healthz"]
+      interval: 2s
+      timeout: 3s
+      start_period: 5s
+      retries: 30
+    restart: unless-stopped
+
+  model-replay:
+    build: .
+    command: node --watch --disable-warning=ExperimentalWarning services/model-replay/server.js
+    ports:
+      - "${REPLAY_PORT:-4200}:4200"
+    environment:
+      PORT: "4200"
+      REPLAY_FAIL_EVERY: ${REPLAY_FAIL_EVERY:-25}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4200/healthz"]
+      interval: 2s
+      timeout: 3s
+      start_period: 5s
+      retries: 30
+    restart: unless-stopped

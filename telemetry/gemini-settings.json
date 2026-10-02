@@ -1,0 +1,10 @@
+{
+  "$comment": "Roast Judge workshop: copy to .gemini/settings.json. The key and seat go in .gemini/.env (template: telemetry/gemini.env): OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=<KEY> and OTEL_RESOURCE_ATTRIBUTES=seat=<SEAT>. Docs: https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/telemetry.md",
+  "telemetry": {
+    "enabled": true,
+    "target": "local",
+    "otlpEndpoint": "https://api.honeycomb.io",
+    "otlpProtocol": "http",
+    "logPrompts": false
+  }
+}

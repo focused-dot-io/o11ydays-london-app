@@ -1,0 +1,21 @@
+{
+  "name": "Roast Judge",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "4gb"
+  },
+  "forwardPorts": [3000, 4100, 4200],
+  "portsAttributes": {
+    "3000": { "label": "Roast Judge", "onAutoForward": "notify" },
+    "4100": { "label": "pub-guide", "onAutoForward": "silent" },
+    "4200": { "label": "model-replay", "onAutoForward": "silent" }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postStartCommand": "bash scripts/codespace-start.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": []
+    }
+  }
+}

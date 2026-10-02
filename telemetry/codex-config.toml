@@ -1,0 +1,38 @@
+# Codex CLI telemetry for the Roast Judge workshop.
+# Copy to .codex-home/config.toml (gitignored) and fill in <KEY> from your seat card.
+# Codex only reads [otel] from its home config, never from a project's .codex/config.toml, so this
+# file lives in a repo-local home: export CODEX_HOME=$PWD/.codex-home  (telemetry/envrc does it).
+# Your seat goes on as a resource attribute from the shell, not from this file:
+#   export OTEL_RESOURCE_ATTRIBUTES=seat=<SEAT>
+# Format: https://developers.openai.com/codex/config-advanced (the [otel] section) and
+#         OtelConfigToml in codex-rs/config/src/types.rs.
+
+[otel]
+environment = "o11ydays-london"
+# Prompt text stays redacted (this is the default; written out so nobody wonders).
+log_user_prompt = false
+
+# Events (codex.sse_event, codex.tool_result, ...) as OTLP logs -> dataset codex_cli_rs.
+[otel.exporter.otlp-http]
+endpoint = "https://api.honeycomb.io/v1/logs"
+protocol = "binary"
+
+[otel.exporter.otlp-http.headers]
+"x-honeycomb-team" = "<KEY>"
+
+# Traces -> dataset codex_cli_rs.
+[otel.trace_exporter.otlp-http]
+endpoint = "https://api.honeycomb.io/v1/traces"
+protocol = "binary"
+
+[otel.trace_exporter.otlp-http.headers]
+"x-honeycomb-team" = "<KEY>"
+
+# Metrics default to OpenAI's own endpoint (statsig). Send them to the shared agent-metrics dataset.
+[otel.metrics_exporter.otlp-http]
+endpoint = "https://api.honeycomb.io/v1/metrics"
+protocol = "binary"
+
+[otel.metrics_exporter.otlp-http.headers]
+"x-honeycomb-team" = "<KEY>"
+"x-honeycomb-dataset" = "agent-metrics"
