@@ -56,6 +56,18 @@ const toolChecks = [
     u.expectAttr(tools, 'gen_ai.tool.call.id', (v) => typeof v === 'string' && v.length > 0);
     const ids = tools.map((s) => u.attr(s, 'gen_ai.tool.call.id'));
     u.expect(new Set(ids).size === ids.length, `gen_ai.tool.call.id values repeat: ${JSON.stringify(ids)}`);
+    // CLI verification supplies independently captured model calls. Span-only consumers can
+    // still use this predicate for shape checks without enabling message-content capture.
+    const calls = ctx.turns[0].modelToolCalls;
+    if (calls !== undefined) {
+      u.expect(calls.length === tools.length, `model asked for ${calls.length} tools, but found ${tools.length} execute_tool spans`);
+      for (const tool of tools) {
+        const id = u.attr(tool, 'gen_ai.tool.call.id');
+        const name = u.attr(tool, 'gen_ai.tool.name');
+        u.expect(calls.some((call) => call.id === id && call.name === name),
+          `gen_ai.tool.call.id ${JSON.stringify(id)} for ${name} does not match a model tool call`);
+      }
+    }
   }),
   u.check('pub guide CLIENT span is a child of execute_tool lookup_pub', (ctx) => {
     const spans = u.turnSpans(ctx, 0);
