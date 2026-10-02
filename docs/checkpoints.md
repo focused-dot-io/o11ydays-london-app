@@ -20,6 +20,11 @@ else is identical to `main`.
 
 ## Catching up
 
+Each checkpoint is also the **solution** to the exercise before it. Exercises are time-boxed (about
+20 minutes for the long ones); when the box closes, the front names the branch and anyone still
+working runs the catch-up command, so the whole room starts the next module in the same place.
+Switching to the branch early is fine: it is the plan, not a failure.
+
 Behind, or want a clean start for the next module? From the repo root:
 
 ```bash
