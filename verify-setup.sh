@@ -7,6 +7,7 @@
 #   compose    `docker compose` available
 #   npm        `npm ci` installs the app's dependencies     (VERIFY_SKIP_NPM=1 skips)
 #   build      `docker compose build` builds the image      (VERIFY_SKIP_BUILD=1 skips)
+#   (docker accepts Podman: if the docker daemon is not running but podman answers, compose/build use podman)
 #   honeycomb  TLS to api.honeycomb.io:443, no API key  (VERIFY_SKIP_NET=1 skips)
 # Prints PASS on the last line when everything is fine. It never switches git branches.
 set -uo pipefail
@@ -35,19 +36,27 @@ fi
 echo "node $node_version"
 ok node
 
-# --- docker: CLI present and daemon answering -----------------------------------------------------
-command -v docker > /dev/null 2>&1 ||
-  fail docker "install Docker Desktop (https://docs.docker.com/get-docker/) and start it"
-docker info > /dev/null 2>&1 ||
-  fail docker "start Docker Desktop (the docker daemon is not running), then re-run this script"
-docker_version="$(docker version --format '{{.Server.Version}}' 2> /dev/null)"
-[ -n "$docker_version" ] || docker_version="$(docker --version 2> /dev/null | sed -E 's/^Docker version ([^,]+).*/\1/')"
-echo "docker $docker_version"
+# --- docker: a container engine answering. Docker first; Podman is fine too ----------------------
+# CONTAINER is the CLI the later compose/build checks use ("docker" or "podman").
+CONTAINER=""
+if command -v docker > /dev/null 2>&1 && docker info > /dev/null 2>&1; then
+  CONTAINER=docker
+  docker_version="$(docker version --format '{{.Server.Version}}' 2> /dev/null)"
+  [ -n "$docker_version" ] || docker_version="$(docker --version 2> /dev/null | sed -E 's/^Docker version ([^,]+).*/\1/')"
+  echo "docker $docker_version"
+elif command -v podman > /dev/null 2>&1 && podman info > /dev/null 2>&1; then
+  CONTAINER=podman
+  echo "podman $(podman --version 2> /dev/null | sed -E 's/^podman version //')"
+elif command -v docker > /dev/null 2>&1; then
+  fail docker "start Docker Desktop (the docker daemon is not running), then re-run this script. Podman works too: 'podman machine start'"
+else
+  fail docker "install Docker Desktop (https://docs.docker.com/get-docker/) and start it, or Podman with 'podman compose'"
+fi
 ok docker
 
-# --- compose: the v2 plugin (`docker compose`, not `docker-compose`) -----------------------------
-docker compose version > /dev/null 2>&1 ||
-  fail compose "update Docker Desktop (or install the docker compose plugin)"
+# --- compose: `docker compose` (the v2 plugin) or `podman compose` ---------------------------------
+"$CONTAINER" compose version > /dev/null 2>&1 ||
+  fail compose "update Docker Desktop (or install the docker compose plugin); with Podman, install podman-compose or the compose plugin"
 ok compose
 
 # --- npm: dependencies install from the lockfile ------------------------------------------------
@@ -62,7 +71,7 @@ fi
 if [ "${VERIFY_SKIP_BUILD:-}" = "1" ]; then
   skip build
 else
-  docker compose build > /dev/null 2>&1 || fail build "run 'docker compose build' here and read its error (often a pull blocked by a proxy)"
+  "$CONTAINER" compose build > /dev/null 2>&1 || fail build "run '$CONTAINER compose build' here and read its error (often a pull blocked by a proxy)"
   ok build
 fi
 

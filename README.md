@@ -35,7 +35,23 @@ curl -s localhost:3000/judge -H 'content-type: application/json' \
 
 ## Before the day
 
-You need git, Node 22.13 or newer, and Docker Desktop (or another Docker with `docker compose`).
+**The Codespace is the default.** Everything runs in a GitHub Codespace in your browser: the app,
+the replay model, Node and the three coding-agent CLIs are prebaked, the app is running when it
+opens, and nothing is installed on your laptop. You need a **GitHub account** (sign-in is required
+to launch a Codespace; the free hours every personal account has cover the afternoon) and a browser
+that can reach github.com. The link is on your seat card and here:
+[codespaces.new/focused-dot-io/o11ydays-london-app/tree/checkpoint-0](https://codespaces.new/focused-dot-io/o11ydays-london-app/tree/checkpoint-0).
+
+**First thing after it opens: raise your Codespace idle timeout** (GitHub Settings → Codespaces →
+Default idle timeout, up to 240 minutes) so it survives the 3:00 break. The default is 30 minutes,
+which is exactly the length of the break.
+
+### Running it on your own laptop (optional, macOS and Linux)
+
+Opt in only if the verify script printed PASS before the day. You need git, Node 22.13 or newer
+(24 is fine), Docker Compose or Podman, and your coding agent already installed and signed in.
+Windows means the Codespace, unless you already run Docker under WSL and are happy to support
+yourself.
 
 ```bash
 git clone https://github.com/focused-dot-io/o11ydays-london-app.git
@@ -46,7 +62,7 @@ cd o11ydays-london-app
 `verify-setup.sh` checks, stopping at the first problem and printing the fix:
 
 - Node is 22.13 or newer;
-- Docker is installed and the daemon is running, and `docker compose` is available;
+- a container engine is running: Docker (`docker compose`) or Podman (`podman compose`);
 - `npm ci` installs the dependencies;
 - `docker compose build` builds the app image (this pulls the pinned `node:22.22.0-alpine` base);
 - your network can open TLS to `api.honeycomb.io:443` (no key needed; it sends nothing).
@@ -60,17 +76,9 @@ PASS proves the laptop is ready. It is not a first trace: that happens in Module
 
 | Lane | You are | On the day |
 |---|---|---|
-| **Green** | `./verify-setup.sh` printed PASS | Module 0 below, then wire your coding agent from [`telemetry/`](telemetry/README.md) |
-| **Yellow** | Partly set up (some check fails) | Follow the fix it prints; a helper gives you 5 minutes, then you move to the Codespace |
-| **Red** | Nothing installed, a locked-down laptop, or you gave up | Use the **Codespace** (link on your seat card): browser only, everything preinstalled, the app running on open |
-
-Codespace link (also on the seat card):
-[codespaces.new/focused-dot-io/o11ydays-london-app/tree/checkpoint-0](https://codespaces.new/focused-dot-io/o11ydays-london-app/tree/checkpoint-0).
-
-The Codespace needs a personal GitHub account with free Codespaces hours and a browser that can
-reach github.com. **First thing after it opens: raise your Codespace idle timeout** (GitHub
-Settings → Codespaces → Default idle timeout, up to 240 minutes) so it survives the 3:00 break.
-The default is 30 minutes, which is exactly the length of the break.
+| **Codespace** (default) | Anyone with a GitHub account | Open the link above; the app is already running. Module 0 below from step 1 |
+| **Local** (opt-in) | `./verify-setup.sh` printed PASS before the day | Module 0 below, then wire your coding agent from [`telemetry/`](telemetry/README.md) |
+| **Stuck in either** | A check fails, a locked-down laptop, no Docker | A helper gives you 5 minutes, then a local seat moves to the Codespace. No second attempt at local |
 
 ## On the day: Module 0, your first trace
 
@@ -179,8 +187,11 @@ that always errors (the tool span fails, the verdict still comes back).
 ## Checkpoints and catch-up
 
 Each module starts from a branch: `checkpoint-0`, `checkpoint-1`, `checkpoint-2` (and
-`checkpoint-2-cut`), `checkpoint-3`, `checkpoint-4`. `main` is the finished reference. Behind, or
-starting a new module clean?
+`checkpoint-2-cut`), `checkpoint-3`, `checkpoint-4`. `main` is the finished reference. **Each
+checkpoint is also the solution to the exercise before it:** exercises are time-boxed (about 20
+minutes for the long ones), then the front names the next branch and everyone catches up, so the
+whole room starts the next module in the same place. Switching to the branch is the plan, not a
+failure. Behind, or starting a new module clean?
 
 ```bash
 npm run catchup -- 2
@@ -224,6 +235,16 @@ put. Then restart `npm run dev` (Docker reloads on its own). What each checkpoin
   [c: Agent Timeline](tracks/c-agent-timeline.md).
 - [`docs/old-names.md`](docs/old-names.md): legacy GenAI attribute names you will meet in the wild.
 - [`docs/checkpoints.md`](docs/checkpoints.md): the checkpoint branches, `verify` and `check-spans`.
+
+## End of the day
+
+The last instruction, on screen and on the seat card:
+
+1. Run `/logout` in your coding agent (Claude Code, Codex and Gemini CLI all have it). The agent's
+   sign-in is not tied to the Codespace, so without this a signed-in agent sits in a stopped Codespace.
+2. Stop your Codespace (github.com/codespaces → … → Stop), or `Ctrl-C` the local `npm run dev`.
+
+The workshop ingest keys are revoked after the day.
 
 ## For the facilitator
 
