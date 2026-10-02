@@ -20,6 +20,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { ROOT, runBash } = require('./helpers/run-script.js');
+const { spawnSync } = require('node:child_process');
 
 const SCRIPT = path.join(ROOT, 'scripts', 'codespace-start.sh');
 const tmp = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'roastjudge-codespace-'));
@@ -87,4 +88,28 @@ test('codespace-start (dry run): garbage in a pidfile is treated as not running'
   assert.equal(res.status, 0, res.info);
   assert.match(res.stdout, /^app: started$/m, res.info);
   assertNoSideEffects(dir, ['.dev.pid']);
+});
+
+test('--if-stopped: live pids are left alone (running), dead ones are started; no signal sent', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cs-start-'));
+  fs.writeFileSync(path.join(dir, '.dev.pid'), String(process.pid) + '\n');
+  fs.writeFileSync(path.join(dir, '.load.pid'), '999999\n');
+  let hup = 0;
+  const onHup = () => { hup += 1; };
+  process.on('SIGHUP', onHup);
+  try {
+    const r = spawnSync('bash', [SCRIPT, '--if-stopped'], {
+      cwd: dir, encoding: 'utf8', env: { PATH: process.env.PATH, HOME: process.env.HOME, CODESPACE_START_DRY_RUN: '1' },
+    });
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(r.stdout, /^app: running$/m);
+    assert.match(r.stdout, /^load: started$/m);
+    assert.equal(hup, 0, 'must not SIGHUP a running process in --if-stopped mode');
+    const bad = spawnSync('bash', [SCRIPT, '--bogus'], { cwd: dir, encoding: 'utf8', env: { PATH: process.env.PATH, HOME: process.env.HOME } });
+    assert.equal(bad.status, 1);
+    assert.match(bad.stderr, /usage/);
+  } finally {
+    process.off('SIGHUP', onHup);
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });
