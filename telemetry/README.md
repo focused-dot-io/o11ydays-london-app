@@ -24,7 +24,7 @@ own sign-in only.
 | Agent | Template | Copy it to | Lands in dataset | Notes |
 |---|---|---|---|---|
 | Claude Code | `claude-settings.local.json` | `.claude/settings.local.json`, then start with `claude --settings .claude/settings.local.json` | `claude-code` | Cost is informational only on Pro/Max. Traces are beta (`CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`). Metrics every 10 s instead of 60 s |
-| Codex CLI | `codex-config.toml` + `envrc` | `.codex-home/config.toml`; `export CODEX_HOME=$PWD/.codex-home` (or copy `envrc` to `.envrc` for direnv) | `codex_cli_rs` | Metrics overridden from the `statsig` default. Cost only with an API key. Tool arguments and output previews are exported even with prompt logging off |
+| Codex CLI | `codex-config.toml` + `envrc` | `.codex-home/config.toml`; `export CODEX_HOME=$PWD/.codex-home` (or copy `envrc` to `.envrc` for direnv) | discover `service.name` below | Metrics overridden from the `statsig` default. Cost only with an API key. Tool arguments and output previews are exported even with prompt logging off |
 | Gemini CLI | `gemini-settings.json` + `gemini.env` | `.gemini/settings.json` and `.gemini/.env` | `gemini-cli` | `logPrompts` defaults to **true**; the templates turn it off. `user.email` only when signed in with a Google account |
 
 No supported agent (or a work-account agent on a locked-down laptop)? Use **Gemini CLI on the free
@@ -119,6 +119,28 @@ Module 1's queries, environment-wide:
 
 Filter to yourself with `user.email = <your sign-in email>`, or `seat = <your seat>` (Gemini on an
 API key has no email).
+
+## Codex rehearsal notes (CLI 0.160.0)
+
+Discover the dataset with an environment-wide query filtered by your `seat`. A standalone
+`codex exec` run emitted `service.name=codex_exec`; a CLI launched from Codex Desktop inherited
+`Codex Desktop` and landed in `codex-desktop`. The service name depends on how you launch it.
+
+For Codex event queries, use `meta.signal_type = log` to avoid counting the same activity from
+both logs and traces. Filter token totals to `event.name = codex.sse_event` and
+`event.kind = response.completed`; tool mix to `event.name = codex.tool_result`; turns per
+`conversation.id` to `event.name = codex.user_prompt`.
+
+The normalisation expressions above assume the referenced columns exist after all three agents
+have been seeded. For a Codex-only rehearsal, use `input_token_count`, `output_token_count`,
+`tool_name` and `conversation.id` directly: `COALESCE` can reject an expression referring to a
+column that does not yet exist. Current Codex traces also emit `gen_ai.usage.*`; choose one
+signal/event population when summing tokens.
+
+For a noninteractive rehearsal, the corpus-truth tests need localhost listeners. Run
+`codex exec --sandbox workspace-write -c sandbox_workspace_write.network_access=true` with the
+Act 1 prompt. The default restricted sandbox returned `listen EPERM`; enabling networking let
+all 329 task tests pass. This does not replace testing a fresh-home interactive login.
 
 ## At the end of the day
 
