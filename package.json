@@ -12,7 +12,7 @@
     "dev": "node scripts/dev.mjs",
     "verify": "node scripts/verify.cjs",
     "check-spans": "node scripts/check-spans.cjs",
-    "first-trace": "node scripts/first-trace.mjs",
+    "first-trace": "node --env-file-if-exists=.env scripts/first-trace.mjs",
     "load": "node scripts/load.mjs",
     "prompt": "node scripts/prompt.mjs",
     "setup": "node scripts/setup.mjs",
