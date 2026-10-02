@@ -5,7 +5,7 @@
 # For each of them:
 #   pidfile holds a live pid -> send it SIGHUP (dev.mjs restarts its services and re-reads .env;
 #                               load.mjs just carries on)          prints "app: restarted" / "load: restarted"
-#   otherwise                 -> start it in the background with nohup, logging to a file, and record
+#   otherwise                 -> start it detached (setsid + nohup), logging to a file, and record
 #                               its pid in the pidfile               prints "app: started" / "load: started"
 #
 #   app:  pidfile .dev.pid,  log .dev.log
@@ -37,7 +37,14 @@ ensure() {
     echo "$name: restarted"
   else
     if [ "$DRY_RUN" != 1 ]; then
-      env "$@" nohup node "$SCRIPTS_DIR/$script" >> "$logfile" 2>&1 < /dev/null &
+      # Detach fully: the devcontainer lifecycle runner tears down the hook's process group when the
+      # hook exits, so nohup alone is not enough. setsid gives the process its own session (Linux;
+      # macOS has no setsid, so fall back to plain nohup there).
+      if command -v setsid >/dev/null 2>&1; then
+        env "$@" setsid nohup node "$SCRIPTS_DIR/$script" >> "$logfile" 2>&1 < /dev/null &
+      else
+        env "$@" nohup node "$SCRIPTS_DIR/$script" >> "$logfile" 2>&1 < /dev/null &
+      fi
       echo $! > "$pidfile"
     fi
     echo "$name: started"
