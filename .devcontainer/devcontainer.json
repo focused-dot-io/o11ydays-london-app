@@ -15,7 +15,10 @@
   "postStartCommand": "bash scripts/codespace-start.sh",
   "customizations": {
     "vscode": {
-      "extensions": []
+      "extensions": [],
+      "settings": {
+        "security.workspace.trust.enabled": false
+      }
     }
   }
 }
