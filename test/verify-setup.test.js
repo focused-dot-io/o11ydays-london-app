@@ -167,6 +167,39 @@ test('verify-setup.sh: no docker on PATH at all -> FAIL docker', { timeout: 6000
   assertFail(r, 'docker', /docker/i);
 });
 
+const FAKE_PODMAN_OK = `case "$*" in
+  "compose version"*) echo "podman-compose version 1.4.0";;
+  info*) echo "host: fake";;
+  *) echo "podman version 5.6.0";;
+esac
+exit 0`;
+
+test('verify-setup.sh: docker daemon down but podman works -> falls back to podman, ok docker/compose, PASS', { timeout: 60000 }, async () => {
+  // The setup email promises "Docker Compose or Podman". A docker CLI whose daemon is not running
+  // must not fail the check when podman answers; the later compose/build checks then use podman.
+  const shims = shimDir({
+    docker: realDockerDelegating('echo "Cannot connect to the Docker daemon" >&2; exit 1'),
+    podman: FAKE_PODMAN_OK,
+  });
+  const r = await runBash([SCRIPT], { cwd: tmp, env: { ...SKIPS, PATH: withPath(shims) }, timeoutMs: 30000 });
+  assert.equal(r.status, 0, r.out);
+  assert.match(r.stdout, /^ok docker$/m);
+  assert.match(r.stdout, /^ok compose$/m);
+  assert.match(r.stdout, /podman 5\.6\.0/);
+  assert.doesNotMatch(r.stdout, /^FAIL/m);
+  assert.equal(r.stdout.trim().split('\n').pop(), 'PASS');
+});
+
+test('verify-setup.sh: neither docker daemon nor podman -> FAIL docker, fix mentions both', { timeout: 60000 }, async () => {
+  const shims = shimDir({
+    docker: realDockerDelegating('echo "Cannot connect to the Docker daemon" >&2; exit 1'),
+    podman: 'echo "podman: cannot connect" >&2; exit 125',
+  });
+  const r = await runBash([SCRIPT], { cwd: tmp, env: { ...SKIPS, PATH: withPath(shims) }, timeoutMs: 30000 });
+  assertFail(r, 'docker', /Docker/);
+  assert.match(r.stdout, /[Pp]odman/);
+});
+
 test('verify-setup.sh: Honeycomb unreachable (VERIFY_FAKE_NET_FAIL=1) -> FAIL honeycomb naming the endpoint', { timeout: 60000 }, async () => {
   const shims = shimDir({ docker: FAKE_DOCKER_OK });
   const env = { VERIFY_SKIP_NPM: '1', VERIFY_SKIP_BUILD: '1', VERIFY_FAKE_NET_FAIL: '1', PATH: withPath(shims) };
