@@ -1,0 +1,72 @@
+[
+  {
+    "slug": "the-gravy-boat",
+    "name": "The Gravy Boat",
+    "price_band": "mid",
+    "specialities": ["bottomless gravy jug", "slow-roast topside", "onion gravy flight"],
+    "reputation": "Will refill your gravy until you beg them to stop, and then once more for luck."
+  },
+  {
+    "slug": "the-crispy-spud",
+    "name": "The Crispy Spud",
+    "price_band": "budget",
+    "specialities": ["goose-fat roasties", "pork belly with crackling", "cauliflower cheese"],
+    "reputation": "Cheap, cheerful and loud; the roasties shatter like stained glass."
+  },
+  {
+    "slug": "the-rising-yorkshire",
+    "name": "The Rising Yorkshire",
+    "price_band": "premium",
+    "specialities": ["towering yorkshire puddings", "28-day aged sirloin", "bone-marrow gravy"],
+    "reputation": "Yorkshires so tall they have their own postcode; priced accordingly."
+  },
+  {
+    "slug": "the-soggy-bottom",
+    "name": "The Soggy Bottom",
+    "price_band": "budget",
+    "specialities": ["boiled veg medley", "gravy from granules", "mystery-cut beef"],
+    "reputation": "Famous for its quiz night, infamous for its roast. Locals order the chips."
+  },
+  {
+    "slug": "the-burnt-end",
+    "name": "The Burnt End",
+    "price_band": "mid",
+    "specialities": ["smoked brisket roast", "charred hispi cabbage", "bourbon gravy"],
+    "reputation": "Smoke-first kitchen that occasionally forgets where char ends and carbon begins."
+  },
+  {
+    "slug": "the-nut-roast-arms",
+    "name": "The Nut Roast Arms",
+    "price_band": "mid",
+    "specialities": ["chestnut and cranberry nut roast", "mushroom wellington", "miso onion gravy"],
+    "reputation": "The vegetarian roast that converts carnivores, or at least silences them."
+  },
+  {
+    "slug": "the-gilded-parsnip",
+    "name": "The Gilded Parsnip",
+    "price_band": "premium",
+    "specialities": ["honey-glazed parsnips", "rack of lamb", "truffle cauliflower cheese"],
+    "reputation": "White tablecloths, tiny portions, and parsnips that cost more than your train fare."
+  },
+  {
+    "slug": "the-duke-of-dripping",
+    "name": "The Duke of Dripping",
+    "price_band": "premium",
+    "specialities": ["beef-dripping roasties", "rib of beef for two", "dripping-fried yorkshires"],
+    "reputation": "Everything is cooked in beef fat, including, allegedly, the dessert."
+  },
+  {
+    "slug": "the-pickled-ploughman",
+    "name": "The Pickled Ploughman",
+    "price_band": "budget",
+    "specialities": ["gammon with pease pudding", "pickled red cabbage", "two-for-one roast Sundays"],
+    "reputation": "Generous plates, sticky tables, and a landlord with strong opinions about mint sauce."
+  },
+  {
+    "slug": "the-lamb-and-lantern",
+    "name": "The Lamb & Lantern",
+    "price_band": "mid",
+    "specialities": ["slow-roast shoulder of lamb", "rosemary roasties", "redcurrant gravy"],
+    "reputation": "Candlelit, cosy, and reliably pink in the middle where it should be."
+  }
+]

@@ -6,6 +6,7 @@ node_modules/
 .gemini/.env
 .codex-home/
 .dev.pid
+.load.pid
 *.log
 .DS_Store
 data/*.sqlite
