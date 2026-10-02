@@ -120,6 +120,12 @@ Module 1's queries, environment-wide:
 Filter to yourself with `user.email = <your sign-in email>`, or `seat = <your seat>` (Gemini on an
 API key has no email).
 
+## At the end of the day
+
+Run `/logout` in the agent you wired (Claude Code, Codex and Gemini CLI all have it), then stop your
+Codespace. The agent's session is not tied to the Codespace's lifecycle, so a signed-in agent would
+otherwise sit in a stopped Codespace.
+
 ## Status of these templates
 
 Drafted from each agent's docs and source; they must be **cold-tested at the dry run** (the prep
