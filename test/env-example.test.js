@@ -7,8 +7,9 @@
 //      SEAT=0, HONEYCOMB_API_KEY=, HONEYCOMB_ENDPOINT=https://api.honeycomb.io,
 //      ROASTJUDGE_EXPORTER=otlp, REPLAY_URL=http://localhost:4200/v1, PUB_GUIDE_URL=http://localhost:4100,
 //      ROASTJUDGE_MODEL=replay, LOAD_INTERVAL_MS=4000, REPLAY_FAIL_EVERY=25
-//    plus the commented-out optional keys `# OPENAI_API_KEY=`, `# HONEYCOMB_TEAM_SLUG=`,
-//    `# HONEYCOMB_ENV_SLUG=`, `# OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=false`.
+//    HONEYCOMB_TEAM_SLUG=focusedlabs-4f and HONEYCOMB_ENV_SLUG=o11ydays-london are active defaults (shared by
+//    the whole room, not secrets) so first-trace prints a direct link; the commented-out optional keys are
+//    `# OPENAI_API_KEY=` and `# OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=false`.
 //  - Every active KEY=value line is immediately preceded by a `#` comment line explaining it.
 //  - No real secrets: HONEYCOMB_API_KEY is empty.
 
@@ -23,6 +24,8 @@ const ACTIVE = [
   'SEAT=0',
   'HONEYCOMB_API_KEY=',
   'HONEYCOMB_ENDPOINT=https://api.honeycomb.io',
+  'HONEYCOMB_TEAM_SLUG=focusedlabs-4f',
+  'HONEYCOMB_ENV_SLUG=o11ydays-london',
   'ROASTJUDGE_EXPORTER=otlp',
   'REPLAY_URL=http://localhost:4200/v1',
   'PUB_GUIDE_URL=http://localhost:4100',
@@ -30,7 +33,7 @@ const ACTIVE = [
   'LOAD_INTERVAL_MS=4000',
   'REPLAY_FAIL_EVERY=25',
 ];
-const COMMENTED = ['OPENAI_API_KEY=', 'HONEYCOMB_TEAM_SLUG=', 'HONEYCOMB_ENV_SLUG=', 'OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=false'];
+const COMMENTED = ['OPENAI_API_KEY=', 'OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=false'];
 
 function lines() {
   return fs.readFileSync(FILE, 'utf8').split(/\r?\n/);

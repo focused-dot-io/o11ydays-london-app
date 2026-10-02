@@ -97,10 +97,12 @@ Your seat card has your seat number `N` and the workshop ingest key `K`.
    npm run first-trace
    ```
 
-4. **Find it.** Open the workshop environment at `https://ui.honeycomb.io` (US; if your URL shows
-   `ui.eu1`, you are in the EU region and will see nothing), choose dataset **`roast-judge-<seat>`** (your
-   seat number, e.g. `roast-judge-17`), and search for the trace ID. The waterfall shows a root span
-   for `POST /judge` with child spans under it.
+4. **Find it.** Click the `Open:` link that `first-trace` printed; it goes straight to your trace in
+   the workshop environment (`https://ui.honeycomb.io/focusedlabs-4f/environments/o11ydays-london`,
+   dataset **`roast-judge-<seat>`**). If the link doesn't work, open that environment, choose your
+   dataset (e.g. `roast-judge-17`) and search for the trace ID. If your URL shows `ui.eu1`, you are in
+   the EU region and will see nothing: the workshop team is in the US region. The waterfall shows a
+   root span for `POST /judge` with child spans under it.
 
 That is the green sticky note. After the closing demo, start the background traffic and leave it
 running all afternoon:
@@ -119,7 +121,7 @@ npm run load
 | `npm run dev` | Run all three services locally (app, pub-guide, model-replay), restart any that crash; reads `.env` |
 | `docker compose up` | The same three services in Docker, with the repo bind-mounted and `node --watch`, so saving a file restarts the service |
 | `npm start` | Run only the app (port 3000); you start pub-guide and model-replay yourself |
-| `npm run first-trace` | Send one corpus roast to the app; print its trace ID, your dataset name and, if `HONEYCOMB_TEAM_SLUG` / `HONEYCOMB_ENV_SLUG` are set, a direct link |
+| `npm run first-trace` | Send one corpus roast to the app; print its trace ID, your dataset name and a direct link to the trace in Honeycomb |
 | `npm run load` | Background load generator: one run every 4 s (`LOAD_INTERVAL_MS`), about 30% through all three turns, always on the replay model; survives app restarts. Ctrl-C to stop |
 | `npm run prompt` | Show the current prompt version |
 | `npm run prompt v1` / `npm run prompt v2` | Switch the judge's system prompt at runtime, no restart (Module 3's flip and rollback) |
@@ -207,7 +209,7 @@ put. Then restart `npm run dev` (Docker reloads on its own). What each checkpoin
 | `OPENAI_API_KEY` | (unset) | Only used when `ROASTJUDGE_MODEL=live` |
 | `LOAD_INTERVAL_MS` | `4000` | Pause between load-generator runs |
 | `REPLAY_FAIL_EVERY` | `25` | Replay fails every Nth call; `0` turns it off |
-| `HONEYCOMB_TEAM_SLUG`, `HONEYCOMB_ENV_SLUG` | (unset) | Let `first-trace` print a direct link to your trace |
+| `HONEYCOMB_TEAM_SLUG`, `HONEYCOMB_ENV_SLUG` | `focusedlabs-4f`, `o11ydays-london` | The shared workshop team and environment; `first-trace` builds its link from them. Not secrets, same for every seat |
 | `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT` | `false` | `true` puts prompts and completions on the chat spans (Module 4 track a) |
 | `ROASTJUDGE_URL` | `http://localhost:3000` | Where `first-trace`, `load` and `prompt` send requests |
 
