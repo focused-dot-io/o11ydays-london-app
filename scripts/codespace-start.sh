@@ -12,8 +12,21 @@
 #   load: pidfile .load.pid, log .load.log
 # Pidfiles and logs live in the current directory (the workspace root in a Codespace).
 #
+# Flag: --if-stopped  leave a live process alone (prints "app: running") instead of restarting it.
+#                     Used by postAttachCommand: on a fresh Codespace the creation sequence kills
+#                     whatever postStartCommand spawned, so the first attach starts the services;
+#                     later attaches (browser reloads) must not restart a running app.
+#
 # Env: CODESPACE_START_DRY_RUN=1  print what would happen; no signals, no processes, no files.
 set -euo pipefail
+
+IF_STOPPED=""
+for arg in "$@"; do
+  case "$arg" in
+    --if-stopped) IF_STOPPED=1 ;;
+    *) echo "usage: $0 [--if-stopped]" >&2; exit 1 ;;
+  esac
+done
 
 SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DRY_RUN="${CODESPACE_START_DRY_RUN:-}"
@@ -33,6 +46,10 @@ ensure() {
   local name="$1" pidfile="$2" logfile="$3" script="$4" pid
   shift 4
   if pid="$(live_pid "$pidfile")"; then
+    if [ -n "$IF_STOPPED" ]; then
+      echo "$name: running"
+      return 0
+    fi
     [ "$DRY_RUN" = 1 ] || kill -HUP "$pid"
     echo "$name: restarted"
   else
