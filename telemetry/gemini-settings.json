@@ -3,7 +3,7 @@
   "telemetry": {
     "enabled": true,
     "target": "local",
-    "otlpEndpoint": "https://api.eu1.honeycomb.io",
+    "otlpEndpoint": "https://api.honeycomb.io",
     "otlpProtocol": "http",
     "logPrompts": false
   }

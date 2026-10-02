@@ -10,7 +10,7 @@ nothing. One template per agent, with exactly two blanks to fill in from your se
 Every filled-in file is **gitignored** (`.claude/settings.local.json`, `.gemini/.env`,
 `.codex-home/`), so your key never gets committed and `npm run catchup` never parks it.
 
-All three send to `https://api.eu1.honeycomb.io`, keep their default `service.name` (so each agent
+All three send to `https://api.honeycomb.io`, keep their default `service.name` (so each agent
 lands in its own dataset), add `seat=<seat>` through `OTEL_RESOURCE_ATTRIBUTES`, send their metrics
 to one shared **`agent-metrics`** dataset via the `x-honeycomb-dataset` header, and keep prompt
 content off.

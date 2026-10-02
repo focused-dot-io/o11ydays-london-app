@@ -49,7 +49,7 @@ cd o11ydays-london-app
 - Docker is installed and the daemon is running, and `docker compose` is available;
 - `npm ci` installs the dependencies;
 - `docker compose build` builds the app image (this pulls the pinned `node:22.22.0-alpine` base);
-- your network can open TLS to `api.eu1.honeycomb.io:443` (no key needed; it sends nothing).
+- your network can open TLS to `api.honeycomb.io:443` (no key needed; it sends nothing).
 
 The last line is **`PASS`** when you are ready. It never switches branches; if you are on `main`
 it tells you to run `npm run catchup -- 0`.
@@ -97,8 +97,8 @@ Your seat card has your seat number `N` and the workshop ingest key `K`.
    npm run first-trace
    ```
 
-4. **Find it.** Open the workshop environment at `https://ui.eu1.honeycomb.io` (EU; if your URL is
-   not `ui.eu1`, that is the first thing to check), choose dataset **`roast-judge-<seat>`** (your
+4. **Find it.** Open the workshop environment at `https://ui.honeycomb.io` (US; if your URL shows
+   `ui.eu1`, you are in the EU region and will see nothing), choose dataset **`roast-judge-<seat>`** (your
    seat number, e.g. `roast-judge-17`), and search for the trace ID. The waterfall shows a root span
    for `POST /judge` with child spans under it.
 
@@ -137,7 +137,7 @@ npm run load
                                (express, the agent,                         (fake OpenAI, no telemetry)
                                 3 tools, SQLite)  ──── GET /pubs/:slug ────▶ pub-guide :4100
                                      │                                       (express, shared dataset)
-                                     └──────── OTLP/HTTP ──▶ api.eu1.honeycomb.io
+                                     └──────── OTLP/HTTP ──▶ api.honeycomb.io
 ```
 
 | Process | Port | Role | Honeycomb dataset |
@@ -198,7 +198,7 @@ put. Then restart `npm run dev` (Docker reloads on its own). What each checkpoin
 |---|---|---|
 | `SEAT` | `0` | Your seat; sets `service.name=roast-judge-<seat>` and the `seat` resource attribute |
 | `HONEYCOMB_API_KEY` | (empty) | Workshop ingest key. Unset means spans print to the console instead, with a loud warning |
-| `HONEYCOMB_ENDPOINT` | `https://api.eu1.honeycomb.io` | OTLP endpoint; the app appends `/v1/traces` |
+| `HONEYCOMB_ENDPOINT` | `https://api.honeycomb.io` | OTLP endpoint; the app appends `/v1/traces` |
 | `ROASTJUDGE_EXPORTER` | `otlp` | `otlp` (Honeycomb), `console` (stdout) or `memory` (tests) |
 | `OTEL_SERVICE_NAME` | `roast-judge-<seat>` | Override the service name |
 | `REPLAY_URL` | `http://localhost:4200/v1` | The replay model's base URL |
@@ -229,7 +229,7 @@ put. Then restart `npm run dev` (Docker reloads on its own). What each checkpoin
   `checkpoint-0` (Settings → General → Default branch), so fresh clones and new Codespaces land on
   Module 0's start. Set it back to `main` afterwards. (The devcontainer also moves a clean `main` to
   `checkpoint-0` on creation.)
-- **Codespaces prebuilds.** Enable them for `checkpoint-0` in the EU region (Settings → Codespaces →
+- **Codespaces prebuilds.** Enable them for `checkpoint-0` (Settings → Codespaces →
   Set up prebuild), so a red-lane Codespace opens in under a minute. Prebuilds are a repo setting,
   not a file in this repo.
 - **Seat 0, the fallback dataset.** Run your own app as seat 0 (`npm run setup -- --seat 0 --key K`,

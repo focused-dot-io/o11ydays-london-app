@@ -9,9 +9,9 @@
 //  - The seat comes from SEAT (default 0); the dataset name printed is `roast-judge-${SEAT}`.
 //  - The trace id printed is the 32-hex `trace_id` from the /judge response (it must exist in the
 //    app's spans).
-//  - UI link format (EU region):
-//      https://ui.eu1.honeycomb.io/<team>/environments/<env>/datasets/roast-judge-<seat>/trace?trace_id=<id>
-//    printed only when BOTH slugs are set; no `ui.eu1.honeycomb.io` link otherwise.
+//  - UI link format (US region):
+//      https://ui.honeycomb.io/<team>/environments/<env>/datasets/roast-judge-<seat>/trace?trace_id=<id>
+//    printed only when BOTH slugs are set; no `ui.honeycomb.io` link otherwise.
 //  - Exit code 0 on success; the script does not need telemetry (run with plain `node`).
 //  - The script must not read a .env file that would override the env given here (the test passes a
 //    controlled env with only PATH/HOME inherited).
@@ -64,7 +64,7 @@ test('first-trace: prints the trace id and dataset roast-judge-<seat>; the trace
   const ids = res.stdout.match(HEX32_G) || [];
   assert.ok(ids.length >= 1, `a 32-hex trace id in stdout\n${res.info}`);
   assert.match(res.stdout, /roast-judge-0/, res.info);
-  assert.doesNotMatch(res.stdout, /ui\.eu1\.honeycomb\.io/, 'no UI link without the slugs');
+  assert.doesNotMatch(res.stdout, /ui\.honeycomb\.io/, 'no UI link without the slugs');
 
   const spans = await h.traceSpans(ids[0]);
   assert.ok(
@@ -79,7 +79,7 @@ test('first-trace: the dataset name follows SEAT', async () => {
   assert.match(res.stdout, /roast-judge-5/, res.info);
 });
 
-test('first-trace: prints the EU Honeycomb UI link when team and env slugs are set', async () => {
+test('first-trace: prints the US Honeycomb UI link when team and env slugs are set', async () => {
   const res = await runFirstTrace({
     ROASTJUDGE_URL: h.appUrl,
     SEAT: '0',
@@ -89,6 +89,6 @@ test('first-trace: prints the EU Honeycomb UI link when team and env slugs are s
   assert.equal(res.status, 0, res.info);
   const ids = res.stdout.match(HEX32_G) || [];
   assert.ok(ids.length >= 1, res.info);
-  const url = `https://ui.eu1.honeycomb.io/team/environments/env/datasets/roast-judge-0/trace?trace_id=${ids[0]}`;
+  const url = `https://ui.honeycomb.io/team/environments/env/datasets/roast-judge-0/trace?trace_id=${ids[0]}`;
   assert.ok(res.stdout.includes(url), `expected ${url}\n${res.info}`);
 });

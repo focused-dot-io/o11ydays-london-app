@@ -4,7 +4,7 @@
 //
 // ASSUMPTIONS (beyond SPEC.md; the implementer must follow these):
 //  - It contains exactly these active lines (in any order):
-//      SEAT=0, HONEYCOMB_API_KEY=, HONEYCOMB_ENDPOINT=https://api.eu1.honeycomb.io,
+//      SEAT=0, HONEYCOMB_API_KEY=, HONEYCOMB_ENDPOINT=https://api.honeycomb.io,
 //      ROASTJUDGE_EXPORTER=otlp, REPLAY_URL=http://localhost:4200/v1, PUB_GUIDE_URL=http://localhost:4100,
 //      ROASTJUDGE_MODEL=replay, LOAD_INTERVAL_MS=4000, REPLAY_FAIL_EVERY=25
 //    plus the commented-out optional keys `# OPENAI_API_KEY=`, `# HONEYCOMB_TEAM_SLUG=`,
@@ -22,7 +22,7 @@ const FILE = path.join(__dirname, '..', '.env.example');
 const ACTIVE = [
   'SEAT=0',
   'HONEYCOMB_API_KEY=',
-  'HONEYCOMB_ENDPOINT=https://api.eu1.honeycomb.io',
+  'HONEYCOMB_ENDPOINT=https://api.honeycomb.io',
   'ROASTJUDGE_EXPORTER=otlp',
   'REPLAY_URL=http://localhost:4200/v1',
   'PUB_GUIDE_URL=http://localhost:4100',
