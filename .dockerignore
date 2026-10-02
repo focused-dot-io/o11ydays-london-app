@@ -1,0 +1,9 @@
+# Kept out of the build context: host dependencies (the image installs its own), git history,
+# secrets, and local runtime files. .env.example is deliberately NOT listed.
+node_modules
+.git
+.env
+*.log
+.dev.pid
+.load.pid
+.codex-home
