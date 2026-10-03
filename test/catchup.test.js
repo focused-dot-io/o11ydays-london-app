@@ -13,13 +13,15 @@
 //    "Parked work before catch-up to checkpoint-N". Clean tree -> no my-work branch.
 //  - Then `git checkout -B checkpoint-N origin/checkpoint-N` and print `Now on checkpoint-N`.
 //  - The script uses the user's git identity; it does not set one.
+//  - Then, if .dev.pid in the repo root names a live process (the Codespace's detached app), send it
+//    SIGHUP and print `app: restarted on checkpoint-N`. Otherwise print a hint to restart npm run dev.
 
 const { test, after } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { execFileSync } = require('node:child_process');
+const { execFileSync, spawn } = require('node:child_process');
 const { ROOT, runBash } = require('./helpers/run-script.js');
 
 const SCRIPT = path.join(ROOT, 'scripts', 'catchup.sh');
@@ -106,6 +108,42 @@ test('catchup 2 on a clean tree creates no my-work branch; running it again is f
   assert.equal(again.status, 0, again.info);
   assert.deepEqual(myWork(clone), []);
   assert.match(again.stdout, /Now on checkpoint-2\b/, again.info);
+});
+
+/** A stand-in for the detached app: writes `hup` to marker on SIGHUP, then exits. */
+function fakeApp(marker) {
+  const child = spawn('bash', ['-c', `trap 'echo hup > "${marker}"; exit 0' HUP; while :; do sleep 0.05; done`], { stdio: 'ignore' });
+  return child;
+}
+
+test('catchup 2 with a live .dev.pid sends the app SIGHUP and says it restarted', async () => {
+  const { clone } = makeRepos();
+  fs.appendFileSync(path.join(clone, '.git', 'info', 'exclude'), '.dev.pid\n');
+  const marker = path.join(clone, '..', 'hup-marker');
+  const app = fakeApp(marker);
+  const exited = new Promise((resolve) => app.on('exit', resolve));
+  try {
+    await new Promise((r) => setTimeout(r, 200));
+    fs.writeFileSync(path.join(clone, '.dev.pid'), `${app.pid}\n`);
+    const res = await catchup(clone, ['2']);
+    assert.equal(res.status, 0, res.info);
+    assert.match(res.stdout, /app: restarted on checkpoint-2\b/, res.info);
+    await Promise.race([exited, new Promise((r) => setTimeout(r, 3000))]);
+    assert.equal(fs.readFileSync(marker, 'utf8').trim(), 'hup', 'the app got SIGHUP');
+    assert.deepEqual(myWork(clone), [], '.dev.pid is not parked work');
+  } finally {
+    app.kill('SIGKILL');
+  }
+});
+
+test('catchup 2 with no live app prints the restart hint and signals nothing', async () => {
+  const { clone } = makeRepos();
+  fs.appendFileSync(path.join(clone, '.git', 'info', 'exclude'), '.dev.pid\n');
+  fs.writeFileSync(path.join(clone, '.dev.pid'), '999999\n');
+  const res = await catchup(clone, ['2']);
+  assert.equal(res.status, 0, res.info);
+  assert.doesNotMatch(res.stdout, /app: restarted/, res.info);
+  assert.match(res.stdout, /Restart npm run dev/, res.info);
 });
 
 test('catchup with a missing or unknown checkpoint -> exit 1, nothing changes', async () => {
