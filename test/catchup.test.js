@@ -129,7 +129,7 @@ test('catchup.sh is strict bash', () => {
 
 test('.gitignore keeps keys out of parked work', () => {
   const lines = fs.readFileSync(path.join(ROOT, '.gitignore'), 'utf8').split(/\r?\n/).map((l) => l.trim());
-  for (const want of ['.env', '.claude/settings.local.json', '.gemini/.env', '.codex-home/', '.dev.pid', '.load.pid']) {
+  for (const want of ['.env', '.claude/settings.local.json', '.claude/telemetry.local.json', '.gemini/.env', '.codex-home/', '.dev.pid', '.load.pid']) {
     assert.ok(lines.includes(want), `.gitignore contains ${want}`);
   }
 });

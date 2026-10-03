@@ -7,7 +7,7 @@ nothing. One template per agent, with exactly two blanks to fill in from your se
 - `<SEAT>`: your seat number (e.g. `17`);
 - `<KEY>`: the workshop ingest key.
 
-Every filled-in file is **gitignored** (`.claude/settings.local.json`, `.gemini/.env`,
+Every filled-in file is **gitignored** (`.claude/telemetry.local.json`, `.gemini/.env`,
 `.codex-home/`), so your key never gets committed and `npm run catchup` never parks it.
 
 All three send to `https://api.honeycomb.io`, keep their default `service.name` (so each agent
@@ -23,7 +23,7 @@ own sign-in only.
 
 | Agent | Template | Copy it to | Lands in dataset | Notes |
 |---|---|---|---|---|
-| Claude Code | `claude-settings.local.json` | `.claude/settings.local.json`, then start with `claude --settings .claude/settings.local.json` | `claude-code` | Cost is informational only on Pro/Max. Traces are beta (`CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`). Metrics every 10 s instead of 60 s |
+| Claude Code | `claude-settings.local.json` | `.claude/telemetry.local.json`, then start with `claude --settings .claude/telemetry.local.json` | `claude-code` | Cost is informational only on Pro/Max. Traces are beta (`CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`). Metrics every 10 s instead of 60 s |
 | Codex CLI | `codex-config.toml` + `envrc` | `.codex-home/config.toml`; `export CODEX_HOME=$PWD/.codex-home` (or copy `envrc` to `.envrc` for direnv) | `codex_cli_rs` (interactive; see the Codex notes below for `codex exec`) | Metrics overridden from the `statsig` default. Cost only with an API key. Tool arguments and output previews are exported even with prompt logging off |
 | Gemini CLI | `gemini-settings.json` + `gemini.env` | `.gemini/settings.json` and `.gemini/.env` | `gemini-cli` | `logPrompts` defaults to **true**; the templates turn it off. `user.email` only when signed in with a Google account |
 
@@ -34,16 +34,18 @@ tier** with a personal Google account; it is preinstalled in the Codespace.
 
 ```bash
 mkdir -p .claude
-cp telemetry/claude-settings.local.json .claude/settings.local.json
+cp telemetry/claude-settings.local.json .claude/telemetry.local.json
 # edit: replace <KEY> (twice) and <SEAT>
-claude --settings .claude/settings.local.json
+claude --settings .claude/telemetry.local.json
 ```
 
 Why `--settings`: since v2.1.282, Claude Code **ignores** telemetry variables
 (`CLAUDE_CODE_ENABLE_TELEMETRY`, the exporters, `OTEL_EXPORTER_OTLP_*` endpoints and headers) set in
 a repository's `.claude/settings.json` or `.claude/settings.local.json`, so a cloned repo cannot
 turn telemetry on behind your back. A file you pass with `--settings` is honoured, and it still
-applies only to sessions you start that way, in this repo. `/status` shows which variables were
+applies only to sessions you start that way, in this repo. Don't name it `.claude/settings.local.json`:
+Claude Code also loads that path on its own as project settings and warns that it ignores every
+telemetry variable in it, even though the `--settings` copy is applied. `/status` shows which variables were
 ignored. (Docs: <https://code.claude.com/docs/en/monitoring-usage> and
 <https://code.claude.com/docs/en/settings-reference#variables-claude-code-ignores-in-env>.)
 
@@ -155,7 +157,7 @@ Drafted from each agent's docs and source; they must be **cold-tested at the dry
 TODO), for each agent: the events land in the right dataset with `seat` on them, metrics land in
 `agent-metrics`, no prompt text appears, and the derived columns resolve across all three. In
 particular: Claude Code's `api_request` field names are not all documented (confirm against real
-data); Claude Code honouring `--settings .claude/settings.local.json` for telemetry; Gemini CLI loading
+data); Claude Code honouring `--settings .claude/telemetry.local.json` for telemetry; Gemini CLI loading
 `.gemini/.env` and applying `OTEL_RESOURCE_ATTRIBUTES`; Codex picking up `OTEL_RESOURCE_ATTRIBUTES`
 for its resource; and a fresh `CODEX_HOME` login on a ChatGPT plan, including device-code login in
 the Codespace.
