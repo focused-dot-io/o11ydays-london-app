@@ -27,6 +27,11 @@ own sign-in only.
 | Codex CLI | `codex-config.toml` + `envrc` | `.codex-home/config.toml`; `export CODEX_HOME=$PWD/.codex-home` (or copy `envrc` to `.envrc` for direnv) | `codex_cli_rs` (interactive; see the Codex notes below for `codex exec`) | Metrics overridden from the `statsig` default. Cost only with an API key. Tool arguments and output previews are exported even with prompt logging off |
 | Gemini CLI | `gemini-settings.json` + `gemini.env` | `.gemini/settings.json` and `.gemini/.env` | `gemini-cli` | `logPrompts` defaults to **true**; the templates turn it off. `user.email` only when signed in with a Google account |
 
+Metrics from every agent land in one shared dataset, `agent-metrics`, but keep the agent's own
+`service.name` (the same one as its events). So an environment-wide query grouped by
+`service.name` merges an agent's events and metrics. To see metrics on their own, choose the
+`agent-metrics` dataset, then group by `service.name` to compare agents.
+
 No supported agent (or a work-account agent on a locked-down laptop)? Use **Gemini CLI on the free
 tier** with a personal Google account; it is preinstalled in the Codespace.
 
