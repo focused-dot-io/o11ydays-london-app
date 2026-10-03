@@ -45,7 +45,8 @@ above are the ones that check the corpus.
 
 Your agent's events land in its own dataset (`claude-code`, `codex_cli_rs` or `gemini-cli`) and
 its metrics in `agent-metrics`. Module 1's tool-mix query, environment-wide, last 15 minutes.
-Paste it into the query builder, with your seat number from the seat card in place of the placeholder:
+Paste it into the query builder, with the seat number from your seat card in place of
+`<your seat>`:
 
 ```json
 {
