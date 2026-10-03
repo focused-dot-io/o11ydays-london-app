@@ -17,7 +17,7 @@ the agent changed on a `my-work-<timestamp>` branch, so you start Act 2 clean.
 Start your agent in the repo root, then paste this as one line:
 
 ```text
-Read replay/corpus.json and services/pub-guide/pubs.json and tell me how many roasts each pub has. Then add one new roast to replay/corpus.json for the pub with the fewest (if several tie, the first alphabetically by name), following the existing schema exactly: next id, text that names exactly that one pub, components matching what the text mentions, plus expected_v1_label and appeal. Then run `node --disable-warning=ExperimentalWarning --test test/corpus.test.js test/corpus-truth.test.js test/replay-engine.test.js` in the terminal, and if it fails, use the test output to fix your new entry (the corpus-truth tests print the real label and ruling) and run it again until it passes. Don't change any other file.
+Read replay/corpus.json and services/pub-guide/pubs.json and tell me how many roasts each pub has. Then add one new roast to replay/corpus.json for the pub with the fewest (if several tie, the first alphabetically by name), following the existing schema exactly: next id, text that names exactly that one pub, components matching what the text mentions, plus an appeal. Set expected_v1_label and appeal.expected_ruling to "TBD": don't work them out, the tests will tell you. Then make `node --disable-warning=ExperimentalWarning --test test/corpus.test.js test/corpus-truth.test.js test/replay-engine.test.js` pass. Don't change any other file.
 ```
 
 ## What a good run looks like
@@ -28,14 +28,16 @@ Read replay/corpus.json and services/pub-guide/pubs.json and tell me how many ro
    **The Burnt End**.
 2. **Edit.** It appends `roast-041`: a `text` that names The Burnt End and nothing else, `pub:
    "the-burnt-end"`, `components` drawn from the six ids (`meat`, `nut_roast`, `roasties`,
-   `yorkshire`, `gravy`, `veg`), a guessed `expected_v1_label` and an `appeal` with `text`,
-   `component` and `expected_ruling`.
-3. **Run.** It runs the tests in the terminal. The guess is usually wrong somewhere: the
-   `corpus-truth` tests run the real agent pipeline on the new roast and fail with a line like
-   `roast-041: expected_v1_label "decent" but the pipeline says "disappointing" (score 5.7)`, and the
-   replay-engine tests fail if `components` does not match the keywords in the text.
-4. **Fix and re-run.** It corrects the entry from that output and runs the tests again until they
-   pass (around 330 tests, under a second).
+   `yorkshire`, `gravy`, `veg`), and an `appeal` with `text` and `component`. `expected_v1_label`
+   and `appeal.expected_ruling` are `"TBD"`, as the prompt says.
+3. **Run.** It runs the tests in the terminal, and the first run always fails: the
+   `corpus-truth` tests run the real agent pipeline on the new roast and print lines like
+   `roast-041: expected_v1_label "TBD" but the pipeline says "decent" (score 7.4)` and
+   `roast-041: expected_ruling "TBD" but the pipeline rules "upheld"`. The replay-engine tests also
+   fail if `components` does not match the keywords in the text.
+4. **Fix and re-run.** Nobody tells it how to recover: it reads the failure, fills in the label
+   and ruling from that output, and runs the tests again until they pass (around 330 tests, under
+   a second).
 
 Why not plain `npm test`? On the workshop branches some of the suite expects the finished `main`
 (the agent spans you write in Module 2), so the full suite is red there by design. The three files
@@ -44,13 +46,23 @@ above are the ones that check the corpus.
 ## What you should see in Honeycomb
 
 Your agent's events land in its own dataset (`claude-code`, `codex_cli_rs` or `gemini-cli`) and
-its metrics in `agent-metrics`. Module 1's tool-mix query, environment-wide, last 15 minutes:
+its metrics in `agent-metrics`. Module 1's tool-mix query, environment-wide, last 15 minutes.
+Paste it into the query builder, with the seat number from your seat card in place of
+`<your seat>`:
 
+```json
+{
+  "time_range": 900,
+  "calculations": [{ "op": "COUNT" }],
+  "breakdowns": ["service.name", "agent.tool"],
+  "filters": [{ "column": "seat", "op": "=", "value": "<your seat>" }]
+}
 ```
-COUNT
-GROUP BY  service.name, agent.tool
-WHERE     user.email = <your sign-in email>     (or seat = <your seat>)
-```
+
+The value is a string, e.g. `"value": "7"`. Every agent's events carry `seat` (it comes from
+`OTEL_RESOURCE_ATTRIBUTES`), so this works whichever agent you use and however you signed in.
+
+Metrics share your agent's `service.name`: see the `agent-metrics` note in [telemetry/README.md](../telemetry/README.md#which-agent-which-files).
 
 You should see your agent's read tools (`Read`, `read_file`, ...), an edit or write tool, and the
 shell tool (`Bash`, `run_shell_command`, `shell`), with the shell count at two or more: the failing
