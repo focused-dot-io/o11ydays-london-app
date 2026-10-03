@@ -18,6 +18,7 @@
 
 const { test, after } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 const path = require('node:path');
 const { ROOT, copyRepo, removeCopy, runNode, hasStackTrace } = require('./helpers/repo-copy.js');
 const blank = require('./helpers/blank-spans.js');
@@ -85,8 +86,22 @@ test('check-spans: only the span wrappers blank (openai on) -> FAIL on invoke_ag
 
 test('check-spans: ignores CHECKPOINT (always the module-2 set)', () => {
   const dir = copy();
-  require('node:fs').writeFileSync(path.join(dir, 'CHECKPOINT'), 'checkpoint-0\n');
+  fs.writeFileSync(path.join(dir, 'CHECKPOINT'), 'checkpoint-0\n');
   const r = runNode(dir, CHECK_SPANS);
   assert.equal(r.status, 0, r.describe());
   assert.ok(r.last.startsWith('PASS'), r.describe());
+});
+
+test('check-spans: unique but incorrect tool-call IDs fail model correlation', () => {
+  const dir = copy();
+  const file = path.join(dir, 'src', 'agent.js');
+  const original = fs.readFileSync(file, 'utf8');
+  // item.id (fc_...) is the realistic slip: the response item carries both it and call_id (call_...).
+  const wrong = original.replace("'gen_ai.tool.call.id': item.call_id", "'gen_ai.tool.call.id': item.id");
+  assert.notEqual(wrong, original, 'the deliberate fault must be applied');
+  fs.writeFileSync(file, wrong);
+  const r = runNode(dir, CHECK_SPANS);
+  assert.equal(r.status, 1, r.describe());
+  assert.match(r.stdout, /does not match a model tool call/, r.describe());
+  assertNoCrash(r);
 });
