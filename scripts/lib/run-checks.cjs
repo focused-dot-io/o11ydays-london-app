@@ -144,6 +144,7 @@ async function collectTurns() {
   const { suppressTracing } = require('@opentelemetry/core');
   // Capture the real model response independently of the attendee's span attributes.
   // This is verification-only; content capture stays off and nothing is exported remotely.
+  // Must run before server.js is required: it destructures getClient at load time.
   const modelToolCalls = new Map();
   const modelClient = require(path.join(ROOT, 'src', 'model-client.js'));
   const getClient = modelClient.getClient;
