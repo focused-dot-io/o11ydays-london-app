@@ -24,7 +24,7 @@ own sign-in only.
 | Agent | Template | Copy it to | Lands in dataset | Notes |
 |---|---|---|---|---|
 | Claude Code | `claude-settings.local.json` | `.claude/settings.local.json`, then start with `claude --settings .claude/settings.local.json` | `claude-code` | Cost is informational only on Pro/Max. Traces are beta (`CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`). Metrics every 10 s instead of 60 s |
-| Codex CLI | `codex-config.toml` + `envrc` | `.codex-home/config.toml`; `export CODEX_HOME=$PWD/.codex-home` (or copy `envrc` to `.envrc` for direnv) | discover `service.name` below | Metrics overridden from the `statsig` default. Cost only with an API key. Tool arguments and output previews are exported even with prompt logging off |
+| Codex CLI | `codex-config.toml` + `envrc` | `.codex-home/config.toml`; `export CODEX_HOME=$PWD/.codex-home` (or copy `envrc` to `.envrc` for direnv) | `codex_cli_rs` (interactive; see the Codex notes below for `codex exec`) | Metrics overridden from the `statsig` default. Cost only with an API key. Tool arguments and output previews are exported even with prompt logging off |
 | Gemini CLI | `gemini-settings.json` + `gemini.env` | `.gemini/settings.json` and `.gemini/.env` | `gemini-cli` | `logPrompts` defaults to **true**; the templates turn it off. `user.email` only when signed in with a Google account |
 
 No supported agent (or a work-account agent on a locked-down laptop)? Use **Gemini CLI on the free
@@ -122,9 +122,10 @@ API key has no email).
 
 ## Codex rehearsal notes (CLI 0.160.0)
 
-Discover the dataset with an environment-wide query filtered by your `seat`. A standalone
-`codex exec` run emitted `service.name=codex_exec`; a CLI launched from Codex Desktop inherited
-`Codex Desktop` and landed in `codex-desktop`. The service name depends on how you launch it.
+The service name, and so the dataset, depends on how Codex is launched. Interactive `codex` sends
+`service.name=codex_cli_rs`; `codex exec` sends `codex_exec`. In rehearsal, a CLI launched from
+Codex Desktop inherited `Codex Desktop` and landed in `codex-desktop`. If your events are not in
+`codex_cli_rs`, find them with an environment-wide query filtered by your `seat`.
 
 For Codex event queries, use `meta.signal_type = log` to avoid counting the same activity from
 both logs and traces. Filter token totals to `event.name = codex.sse_event` and

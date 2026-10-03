@@ -18,6 +18,8 @@
 
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 const { createHarness } = require('./helpers/app-harness.js');
@@ -94,8 +96,6 @@ test('first-trace: prints the US Honeycomb UI link when team and env slugs are s
 });
 
 test('npm run first-trace reads the seat and link from .env, while shell values win', async () => {
-  const fs = require('node:fs');
-  const os = require('node:os');
   const dir = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'roastjudge-first-trace-env-'));
   try {
     for (const file of ['package.json', 'scripts/first-trace.mjs', 'replay/corpus.json']) {
