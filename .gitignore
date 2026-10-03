@@ -3,6 +3,7 @@ node_modules/
 .env.*
 !.env.example
 .claude/settings.local.json
+.claude/telemetry.local.json
 .gemini/.env
 .codex-home/
 .dev.pid
