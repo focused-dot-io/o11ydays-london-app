@@ -18,6 +18,8 @@
 
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 const { createHarness } = require('./helpers/app-harness.js');
@@ -91,4 +93,34 @@ test('first-trace: prints the US Honeycomb UI link when team and env slugs are s
   assert.ok(ids.length >= 1, res.info);
   const url = `https://ui.honeycomb.io/team/environments/env/datasets/roast-judge-0/trace?trace_id=${ids[0]}`;
   assert.ok(res.stdout.includes(url), `expected ${url}\n${res.info}`);
+});
+
+test('npm run first-trace reads the seat and link from .env, while shell values win', async () => {
+  const dir = fs.mkdtempSync(path.join(fs.realpathSync(os.tmpdir()), 'roastjudge-first-trace-env-'));
+  try {
+    for (const file of ['package.json', 'scripts/first-trace.mjs', 'replay/corpus.json']) {
+      fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+      fs.copyFileSync(path.join(ROOT, file), path.join(dir, file));
+    }
+    fs.writeFileSync(path.join(dir, '.env'), `SEAT=917\nROASTJUDGE_URL=${h.appUrl}\nHONEYCOMB_TEAM_SLUG=team\nHONEYCOMB_ENV_SLUG=env\n`);
+    const run = (extra = {}) => new Promise((resolve) => {
+      const child = spawn('npm', ['run', 'first-trace'], {
+        cwd: dir, env: { PATH: process.env.PATH, HOME: process.env.HOME, ...extra },
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
+      let output = '';
+      child.stdout.on('data', (d) => { output += d; });
+      child.stderr.on('data', (d) => { output += d; });
+      child.on('close', (status) => resolve({ status, output }));
+    });
+    const fromFile = await run();
+    assert.equal(fromFile.status, 0, fromFile.output);
+    assert.match(fromFile.output, /Dataset:\s+roast-judge-917/);
+    assert.match(fromFile.output, /\/team\/environments\/env\/datasets\/roast-judge-917\/trace/);
+    const fromShell = await run({ SEAT: '5' });
+    assert.equal(fromShell.status, 0, fromShell.output);
+    assert.match(fromShell.output, /Dataset:\s+roast-judge-5/);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });

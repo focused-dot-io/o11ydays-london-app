@@ -142,6 +142,25 @@ async function collectTurns() {
   if (!telemetry.memoryExporter) throw new Error('src/telemetry.js did not create the in-memory exporter');
   const { context, trace } = require('@opentelemetry/api');
   const { suppressTracing } = require('@opentelemetry/core');
+  // Capture the real model response independently of the attendee's span attributes.
+  // This is verification-only; content capture stays off and nothing is exported remotely.
+  // Must run before server.js is required: it destructures getClient at load time.
+  const modelToolCalls = new Map();
+  const modelClient = require(path.join(ROOT, 'src', 'model-client.js'));
+  const getClient = modelClient.getClient;
+  modelClient.getClient = (...args) => {
+    const client = getClient(...args);
+    const create = client.responses.create.bind(client.responses);
+    client.responses.create = async (...requestArgs) => {
+      const traceId = trace.getSpan(context.active())?.spanContext().traceId;
+      const response = await create(...requestArgs);
+      const calls = response.output.filter((item) => item.type === 'function_call')
+        .map((item) => ({ id: item.call_id, name: item.name }));
+      modelToolCalls.set(traceId, [...(modelToolCalls.get(traceId) || []), ...calls]);
+      return response;
+    };
+    return client;
+  };
   const { createApp } = require(path.join(ROOT, 'src', 'server.js'));
   const corpus = JSON.parse(fs.readFileSync(path.join(ROOT, 'replay', 'corpus.json'), 'utf8'));
   const item = corpus[0];
@@ -206,7 +225,7 @@ async function collectTurns() {
     await sleep(20);
     await flush();
 
-    return turns.map((t) => ({ name: t.name, spans: spansOf(t.traceId) }));
+    return turns.map((t) => ({ name: t.name, spans: spansOf(t.traceId), modelToolCalls: modelToolCalls.get(t.traceId) || [] }));
   } finally {
     if (typeof server.closeAllConnections === 'function') server.closeAllConnections();
     server.close();
