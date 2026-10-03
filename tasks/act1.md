@@ -44,13 +44,20 @@ above are the ones that check the corpus.
 ## What you should see in Honeycomb
 
 Your agent's events land in its own dataset (`claude-code`, `codex_cli_rs` or `gemini-cli`) and
-its metrics in `agent-metrics`. Module 1's tool-mix query, environment-wide, last 15 minutes:
+its metrics in `agent-metrics`. Module 1's tool-mix query, environment-wide, last 15 minutes.
+Paste it into the query builder, with your sign-in email in place of the placeholder:
 
+```json
+{
+  "time_range": 900,
+  "calculations": [{ "op": "COUNT" }],
+  "breakdowns": ["service.name", "agent.tool"],
+  "filters": [{ "column": "user.email", "op": "=", "value": "<your sign-in email>" }]
+}
 ```
-COUNT
-GROUP BY  service.name, agent.tool
-WHERE     user.email = <your sign-in email>     (or seat = <your seat>)
-```
+
+No email on your events (Gemini on an API key)? Use `"column": "seat"` with your seat number as
+the value, e.g. `"value": "7"`.
 
 You should see your agent's read tools (`Read`, `read_file`, ...), an edit or write tool, and the
 shell tool (`Bash`, `run_shell_command`, `shell`), with the shell count at two or more: the failing
