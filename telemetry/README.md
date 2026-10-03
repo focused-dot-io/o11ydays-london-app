@@ -110,14 +110,52 @@ agent.session         COALESCE($session.id, $conversation.id)
 (Codex and Gemini share `input_token_count` / `output_token_count`, and Claude Code and Codex share
 `tool_name`, so one `COALESCE` of two names covers all three.)
 
-Module 1's queries, environment-wide:
+Module 1's queries, environment-wide. Paste each into the query builder. They have no
+`time_range`: set the time range back far enough to include the seeded runs from before the day.
 
-1. Tokens by agent and model: `SUM(agent.input_tokens)`, `SUM(agent.output_tokens)` grouped by
-   `service.name`, `model`.
-2. Tool mix: `COUNT` grouped by `service.name`, `agent.tool`.
-3. Turns per session: grouped by `agent.session`.
-4. The limits question: tokens by `user.email` over time. Use tokens, not cost: cost is
-   informational on subscription plans and missing entirely for Codex on a ChatGPT plan.
+1. Tokens by agent and model:
+
+   ```json
+   {
+     "calculations": [
+       { "op": "SUM", "column": "agent.input_tokens" },
+       { "op": "SUM", "column": "agent.output_tokens" }
+     ],
+     "breakdowns": ["service.name", "model"]
+   }
+   ```
+
+2. Tool mix:
+
+   ```json
+   {
+     "calculations": [{ "op": "COUNT" }],
+     "breakdowns": ["service.name", "agent.tool"]
+   }
+   ```
+
+3. Turns per session:
+
+   ```json
+   {
+     "calculations": [{ "op": "COUNT" }],
+     "breakdowns": ["agent.session"],
+     "orders": [{ "op": "COUNT", "order": "descending" }]
+   }
+   ```
+
+4. The limits question, tokens by person over time. Use tokens, not cost: cost is informational on
+   subscription plans and missing entirely for Codex on a ChatGPT plan.
+
+   ```json
+   {
+     "calculations": [
+       { "op": "SUM", "column": "agent.input_tokens" },
+       { "op": "SUM", "column": "agent.output_tokens" }
+     ],
+     "breakdowns": ["user.email"]
+   }
+   ```
 
 Filter to yourself with `user.email = <your sign-in email>`, or `seat = <your seat>` (Gemini on an
 API key has no email).

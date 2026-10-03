@@ -22,7 +22,8 @@ label the agent. Set both at span creation, in the options, not later with `setA
 app's span processor copies them from the agent span onto every chat and `execute_tool` span as
 they start, so the whole subtree carries the conversation.
 
-Restart the app (`npm run dev`: Ctrl-C and start again; `docker compose up` reloads on save).
+Restart the app (`npm run dev`: Ctrl-C and start again, or `kill -HUP $(cat .dev.pid)` from another
+terminal; `docker compose up` reloads on save).
 
 ### 2. Check it
 
