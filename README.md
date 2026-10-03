@@ -112,6 +112,12 @@ Your seat card has your seat number `N` and the workshop ingest key `K`.
    the EU region and will see nothing: the workshop team is in the US region. The waterfall shows a
    root span for `POST /judge` with child spans under it.
 
+**No OpenAI or Codex account needed.** The app talks to the local replay model on port 4200 (the
+`POST` to `localhost:4200` in your trace). It uses the official `openai` client pointed at that fake,
+which is why the `chat gpt-4.1-mini` spans you add in Module 2 name an OpenAI model. Nothing goes to
+OpenAI. Codex only shows up here as one of the coding agents you can use; it has nothing to do with
+the app's model. See [Model modes](#architecture) if you want to point it at a real model.
+
 That is the green sticky note. After the closing demo, start the background traffic and leave it
 running all afternoon:
 
