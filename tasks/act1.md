@@ -45,19 +45,19 @@ above are the ones that check the corpus.
 
 Your agent's events land in its own dataset (`claude-code`, `codex_cli_rs` or `gemini-cli`) and
 its metrics in `agent-metrics`. Module 1's tool-mix query, environment-wide, last 15 minutes.
-Paste it into the query builder, with your sign-in email in place of the placeholder:
+Paste it into the query builder, with your seat number from the seat card in place of the placeholder:
 
 ```json
 {
   "time_range": 900,
   "calculations": [{ "op": "COUNT" }],
   "breakdowns": ["service.name", "agent.tool"],
-  "filters": [{ "column": "user.email", "op": "=", "value": "<your sign-in email>" }]
+  "filters": [{ "column": "seat", "op": "=", "value": "<your seat>" }]
 }
 ```
 
-No email on your events (Gemini on an API key)? Use `"column": "seat"` with your seat number as
-the value, e.g. `"value": "7"`.
+The value is a string, e.g. `"value": "7"`. Every agent's events carry `seat` (it comes from
+`OTEL_RESOURCE_ATTRIBUTES`), so this works whichever agent you use and however you signed in.
 
 You should see your agent's read tools (`Read`, `read_file`, ...), an edit or write tool, and the
 shell tool (`Bash`, `run_shell_command`, `shell`), with the shell count at two or more: the failing
