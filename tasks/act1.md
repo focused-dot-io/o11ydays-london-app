@@ -62,9 +62,7 @@ Paste it into the query builder, with the seat number from your seat card in pla
 The value is a string, e.g. `"value": "7"`. Every agent's events carry `seat` (it comes from
 `OTEL_RESOURCE_ATTRIBUTES`), so this works whichever agent you use and however you signed in.
 
-Because the query is environment-wide, it also picks up your agent's metrics from `agent-metrics`,
-which share its `service.name`. To look at metrics on their own, see the `agent-metrics` note in
-[telemetry/README.md](../telemetry/README.md#which-agent-which-files).
+Metrics share your agent's `service.name`: see the `agent-metrics` note in [telemetry/README.md](../telemetry/README.md#which-agent-which-files).
 
 You should see your agent's read tools (`Read`, `read_file`, ...), an edit or write tool, and the
 shell tool (`Bash`, `run_shell_command`, `shell`), with the shell count at two or more: the failing
