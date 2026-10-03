@@ -205,8 +205,9 @@ npm run catchup -- 2
 
 It fetches, parks any uncommitted work on a branch called `my-work-<timestamp>` (nothing is lost),
 and checks out `checkpoint-2` fresh. Your `.env` and coding-agent settings are gitignored and stay
-put. Then restart `npm run dev` (Docker reloads on its own). What each checkpoint contains, and how
-`verify` and `check-spans` behave on each, is in [docs/checkpoints.md](docs/checkpoints.md).
+put. In the Codespace, catchup restarts the app for you. Locally, stop `npm run dev` and start it
+again (Docker reloads on its own). What each checkpoint contains, and how `verify` and
+`check-spans` behave on each, is in [docs/checkpoints.md](docs/checkpoints.md).
 
 ## Environment variables
 

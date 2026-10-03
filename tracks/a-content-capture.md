@@ -37,13 +37,18 @@ Start on `checkpoint-4` (`npm run catchup -- 4`) with the app running and your l
 
 ## The query that proves it (green sticky note)
 
-Open one trace with capture on and read the conversation across its chat spans. Then, over the last
-15 minutes in your dataset:
+Open one trace with capture on and read the conversation across its chat spans. Then paste this
+into the query builder on your dataset (last 30 minutes):
 
-```
-WHERE  name starts-with chat
-       gen_ai.input.messages exists
-COUNT  grouped by time
+```json
+{
+  "time_range": 1800,
+  "calculations": [{ "op": "COUNT" }],
+  "filters": [
+    { "column": "name", "op": "starts-with", "value": "chat" },
+    { "column": "gen_ai.input.messages", "op": "exists" }
+  ]
+}
 ```
 
 The count rises while capture is on and drops to zero after you turn it off.
