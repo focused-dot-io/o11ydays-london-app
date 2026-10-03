@@ -26,28 +26,44 @@ The usage attributes live on the auto-generated `chat gpt-4.1-mini` spans. Those
 
 ### 2. Cost by prompt version
 
-Query your dataset over the time since Module 3 (about 2:45 to now):
+Paste this into the query builder on your dataset. The last 90 minutes reaches back to Module 3:
 
-```
-WHERE     name starts-with chat
-SUM       roastjudge.cost_usd
-GROUP BY  gen_ai.prompt.version
+```json
+{
+  "time_range": 5400,
+  "calculations": [{ "op": "SUM", "column": "roastjudge.cost_usd" }],
+  "filters": [{ "column": "name", "op": "starts-with", "value": "chat" }],
+  "breakdowns": ["gen_ai.prompt.version"]
+}
 ```
 
-Then divide by runs: `COUNT` where `name = invoke_agent roast-judge`, grouped by the same field.
+Spans from before you stamped show up as a blank `gen_ai.prompt.version` row. Ignore it.
+
+Then divide by runs, grouped by the same field:
+
+```json
+{
+  "time_range": 5400,
+  "calculations": [{ "op": "COUNT" }],
+  "filters": [{ "column": "name", "op": "=", "value": "invoke_agent roast-judge" }],
+  "breakdowns": ["gen_ai.prompt.version"]
+}
+```
 v2 makes more model calls per run (it calls `lookup_pub`, sometimes twice, before it judges), so
 each v2 verdict costs more while telling you less.
 
 ### 3. A trigger on agent behaviour
 
-Triggers → New trigger, on your dataset:
+Triggers → New trigger, on your dataset. The query:
 
+```json
+{
+  "calculations": [{ "op": "AVG", "column": "roastjudge.components_scored" }],
+  "filters": [{ "column": "name", "op": "=", "value": "invoke_agent roast-judge" }]
+}
 ```
-WHERE      name = invoke_agent roast-judge
-AVG        roastjudge.components_scored
-Threshold  < 1
-Time range 5 minutes, frequency every 1 minute
-```
+
+Then set the threshold to `< 1`, the time range to 5 minutes and the frequency to every 1 minute.
 
 Recipient: none is fine for the workshop (the trigger page shows its state), or your own email.
 
