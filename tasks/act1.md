@@ -75,5 +75,5 @@ Codex reads files through its shell, so it shows only `exec_command` (and `exec`
 `apply_patch`. Antigravity also sends one `agy.invocation` event per loop pass and one `agy.stop`
 per turn; they have no tool, so they show as a blank `agent.tool` row. In rehearsal, an Antigravity
 run (`gemini-3.8-flash-high`) took about 8 minutes: 20 `run_command`, 13 `view_file`, 2
-`replace_file_content`. `agent.tool` is a derived column defined in
+`replace_file_content`. `agent.tool` is a calculated field defined in
 [telemetry/README.md](../telemetry/README.md).

@@ -240,7 +240,7 @@ judge back on prompt `v1`, so re-run `npm run prompt v2` if you were mid-flip. W
 ## Where things are
 
 - [`telemetry/`](telemetry/README.md): wire Claude Code, Codex or Antigravity CLI to send to the workshop
-  environment (Act 1), plus the derived columns that normalise them.
+  environment (Act 1), plus the calculated fields that normalise them.
 - [`tasks/act1.md`](tasks/act1.md): the scripted coding-agent task for Act 1.
 - [`tasks/module3.md`](tasks/module3.md): Module 3's hunt for the bad prompt, the queries and BubbleUp.
 - [`tracks/`](tracks/): Module 4's self-serve cards,

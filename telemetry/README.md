@@ -99,13 +99,13 @@ sign-in URL to open in your own browser. The span attributes are `tool_name` (on
 `conversation.id`, `model`, `agy.step`, `agy.invocation`, `agy.termination_reason` (on `Stop`),
 `error` and `error.message`. Not `user.email`, and no token counts: the hook payloads carry neither.
 
-## The unified view: derived columns
+## The unified view: calculated fields
 
-The three agents name the same things differently. Four **environment-wide** derived columns
-(Environment settings → Derived columns) `COALESCE` them into one vocabulary, so one query covers
-every agent in the room:
+The three agents name the same things differently. Four **environment-wide** calculated fields
+(Environment settings → Schema → Calculated fields, then **Add new Calculated Field**) `COALESCE`
+them into one vocabulary, so one query covers every agent in the room:
 
-| Derived column | Claude Code | Codex | Antigravity CLI |
+| Calculated field | Claude Code | Codex | Antigravity CLI |
 |---|---|---|---|
 | `agent.input_tokens` | `input_tokens` (on `api_request`) | `input_token_count` (on `codex.sse_event`) | (none) |
 | `agent.output_tokens` | `output_tokens` | `output_token_count` | (none) |
@@ -115,8 +115,8 @@ every agent in the room:
 Definitions to paste:
 
 ```
-agent.input_tokens    COALESCE($input_tokens, $input_token_count)
-agent.output_tokens   COALESCE($output_tokens, $output_token_count)
+agent.input_tokens    COALESCE($input_tokens, INT($input_token_count))
+agent.output_tokens   COALESCE($output_tokens, INT($output_token_count))
 agent.tool            $tool_name
 agent.session         COALESCE($session.id, $conversation.id)
 ```
@@ -125,7 +125,8 @@ agent.session         COALESCE($session.id, $conversation.id)
 `conversation.id` on purpose, so `agent.tool` needs no `COALESCE` and the others need no new arms.
 `COALESCE` rejects a column that does not exist yet in the environment, so the older
 `COALESCE($tool_name, $function_name)` (`function_name` was Gemini CLI's) cannot be created now that
-nothing sends `function_name`. Antigravity has no token counts, so it is missing from the token
+nothing sends `function_name`. Codex sends `input_token_count` and `output_token_count` as strings,
+so `INT()` turns them into numbers `SUM` can add. Antigravity has no token counts, so it is missing from the token
 queries below.)
 
 Module 1's queries, environment-wide. Paste each into the query builder. They have no
@@ -240,7 +241,7 @@ otherwise sit in a stopped Codespace.
 
 Drafted from each agent's docs and source; they must be **cold-tested at the dry run** (the prep
 TODO), for each agent: the events land in the right dataset with `seat` on them, metrics land in
-`agent-metrics`, no prompt text appears, and the derived columns resolve across all three. In
+`agent-metrics`, no prompt text appears, and the calculated fields resolve across all three. In
 particular: Claude Code's `api_request` field names are not all documented (confirm against real
 data); Claude Code honouring `--settings .claude/telemetry.local.json` for telemetry; Codex picking up `OTEL_RESOURCE_ATTRIBUTES`
 for its resource; and a fresh `CODEX_HOME` login on a ChatGPT plan, including device-code login in

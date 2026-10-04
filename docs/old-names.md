@@ -24,7 +24,13 @@ This workshop uses the current names. This page maps the ones you will meet else
 | `ai.generateText`, `ai.streamText`, `ai.toolCall` (span names) and `ai.*` attributes | Vercel AI SDK's own telemetry | `chat {model}` and `execute_tool {name}` spans with `gen_ai.*` attributes (the AI SDK also emits some `gen_ai.*` alongside its own) |
 | `llm.request.type`, `llm.usage.total_tokens`, other `llm.*` | OpenLLMetry (Traceloop) | `gen_ai.operation.name`, `gen_ai.usage.input_tokens` + `output_tokens` |
 | `traceloop.*` (e.g. `traceloop.entity.name`, `traceloop.workflow.name`) | OpenLLMetry's workflow and agent naming | `gen_ai.agent.name`, `invoke_agent` spans |
-| `input_tokens`, `input_token_count`, `tool_name`, `function_name` | Coding-agent event attributes (Claude Code, Codex, Antigravity; `function_name` is retired Gemini CLI data) | Normalised with derived columns in [telemetry/README.md](../telemetry/README.md) |
+| `input_tokens`, `input_token_count`, `tool_name`, `function_name` | Coding-agent event attributes (Claude Code, Codex, Antigravity; `function_name` is retired Gemini CLI data) | Normalised with calculated fields in [telemetry/README.md](../telemetry/README.md) |
+
+## Honeycomb's own renames
+
+| Old name | Current name | Where you still see the old one |
+|---|---|---|
+| Derived columns | Calculated fields (Environment settings → Schema → Calculated fields) | Older Honeycomb docs and blog posts, and the API (`/1/derived_columns`) |
 
 ## Why this app uses the Responses API
 
@@ -47,5 +53,5 @@ Development status looks like in practice.
   can rename the attributes your queries, boards and triggers depend on.
 - **Check what your library actually emits** before you build a board on it: open one span and read
   the attribute names.
-- **Bridge with derived columns** when you have data under both names, e.g.
+- **Bridge with calculated fields** when you have data under both names, e.g.
   `COALESCE($gen_ai.usage.input_tokens, $gen_ai.usage.prompt_tokens)`.
