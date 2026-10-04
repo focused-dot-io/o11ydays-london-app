@@ -142,7 +142,7 @@ npm run load
 | `npm run first-trace` | Send one corpus roast to the app; print its trace ID, your dataset name and a direct link to the trace in Honeycomb |
 | `npm run load` | Background load generator: one run every 4 s (`LOAD_INTERVAL_MS`), about 30% through all three turns, always on the replay model; survives app restarts. Ctrl-C to stop |
 | `npm run prompt` | Show the current prompt version |
-| `npm run prompt v1` / `npm run prompt v2` | Switch the judge's system prompt at runtime, no restart (Module 3's flip and rollback) |
+| `npm run prompt v1` / `npm run prompt v2` | Switch the judge's system prompt at runtime, no restart (Module 3's flip and rollback). Held in memory: any app restart goes back to `v1` |
 | `npm run check-spans` | "Is Module 2 done?" One request against an in-memory exporter, checked against the Module 2 span set. Prints `PASS` or what is missing |
 | `npm run verify` | "Is this checkpoint healthy as shipped?" Checks the expectation set named in `CHECKPOINT`; `npm run verify -- <set>` checks another set |
 | `npm run catchup -- N` | Jump to checkpoint `N` (`0 1 2 2-cut 3 4`), parking your changes first |
@@ -209,8 +209,10 @@ npm run catchup -- 2
 
 It fetches, parks any uncommitted work on a branch called `my-work-<timestamp>` (nothing is lost),
 and checks out `checkpoint-2` fresh. Your `.env` and coding-agent settings are gitignored and stay
-put. In the Codespace, catchup restarts the app for you. Locally, stop `npm run dev` and start it
-again (Docker reloads on its own). What each checkpoint contains, and how `verify` and
+put. If `npm run dev` is running (the Codespace starts it for you; locally, in another terminal),
+catchup restarts it on the new code and prints `app: restarted on checkpoint-N`; if it is not
+running, catchup prints a reminder to start it. Docker reloads on its own. Any restart puts the
+judge back on prompt `v1`, so re-run `npm run prompt v2` if you were mid-flip. What each checkpoint contains, and how `verify` and
 `check-spans` behave on each, is in [docs/checkpoints.md](docs/checkpoints.md).
 
 ## Environment variables
@@ -240,6 +242,7 @@ again (Docker reloads on its own). What each checkpoint contains, and how `verif
 - [`telemetry/`](telemetry/README.md): wire Claude Code, Codex or Antigravity CLI to send to the workshop
   environment (Act 1), plus the derived columns that normalise them.
 - [`tasks/act1.md`](tasks/act1.md): the scripted coding-agent task for Act 1.
+- [`tasks/module3.md`](tasks/module3.md): Module 3's hunt for the bad prompt, the queries and BubbleUp.
 - [`tracks/`](tracks/): Module 4's self-serve cards,
   [a: content capture](tracks/a-content-capture.md),
   [b: cost and SLO](tracks/b-cost-and-slo.md),

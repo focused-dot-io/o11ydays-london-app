@@ -27,6 +27,7 @@ const DOCS = [
   'tracks/b-cost-and-slo.md',
   'tracks/c-agent-timeline.md',
   'tasks/act1.md',
+  'tasks/module3.md',
   'telemetry/README.md',
 ];
 const TEMPLATES = [
