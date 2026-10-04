@@ -144,12 +144,17 @@ Module 1's queries, environment-wide. Paste each into the query builder. They ha
    }
    ```
 
-2. Tool mix:
+2. Tool mix, one row per tool call (see [tasks/act1.md](../tasks/act1.md#what-you-should-see-in-honeycomb)
+   for why both filters are needed):
 
    ```json
    {
      "calculations": [{ "op": "COUNT" }],
-     "breakdowns": ["service.name", "agent.tool"]
+     "breakdowns": ["service.name", "agent.tool"],
+     "filters": [
+       { "column": "event.name", "op": "in", "value": ["tool_result", "codex.tool_result", "agy.tool_result"] },
+       { "column": "name", "op": "does-not-start-with", "value": "event otel" }
+     ]
    }
    ```
 
@@ -215,7 +220,10 @@ the sandbox.
 
 Codex reads files with its shell tool, so its tool mix is `exec_command` (and `exec`) plus
 `apply_patch`, with no separate read tool. `codex.tool_decision` and `codex.tool_result` both carry
-`tool_name`, so filter to `event.name = codex.tool_result` to count each call once.
+`tool_name`, so filter to `event.name = codex.tool_result` to count each call once. That event
+arrives twice, as a log and as a span event named `event otel/src/tool_result.rs:54`, so also
+filter `meta.signal_type = log` (or `name does-not-start-with "event otel"`, which the Module 1
+tool-mix query uses).
 
 `codex logout` (or `/logout`) removes the credentials in the current `CODEX_HOME`. Run it from the
 shell where `CODEX_HOME=$PWD/.codex-home` is exported, or you sign out of your global Codex home
