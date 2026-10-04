@@ -41,8 +41,8 @@ reload on their own. A restart puts the prompt back on `v1`.
 
 ## Checking your work: `verify` and `check-spans`
 
-Both run one request through the app against an in-memory exporter (nothing goes to Honeycomb, no
-key or network needed) and print `PASS` or a list of what is missing.
+Both run a judge, appeal and final turn through the app against an in-memory exporter (nothing goes
+to Honeycomb, no key or network needed) and print `PASS` or a list of what is missing.
 
 - `npm run verify` asks "is this checkpoint healthy as shipped?". It reads `CHECKPOINT` and checks
   the expectations for that checkpoint (`scripts/expectations/<name>.js`). It passes on every

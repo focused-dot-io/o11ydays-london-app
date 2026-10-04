@@ -15,6 +15,7 @@
     "first-trace": "node --env-file-if-exists=.env scripts/first-trace.mjs",
     "load": "node scripts/load.mjs",
     "prompt": "node scripts/prompt.mjs",
+    "restart": "node --env-file-if-exists=.env scripts/restart.mjs",
     "setup": "node scripts/setup.mjs",
     "catchup": "bash scripts/catchup.sh"
   },
