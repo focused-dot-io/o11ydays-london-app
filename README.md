@@ -280,9 +280,11 @@ The workshop ingest keys are revoked after the day.
   "Prebuild in progress" and build from scratch, so freeze `checkpoint-0` the night before and check
   the run is green (Settings → Codespaces → See output); and the prebuild is only for Europe West,
   so an attendee whose GitHub picks another region gets a cold build.
-- **Seat 0, the fallback dataset.** Run your own app as seat 0 (`npm run setup -- --seat 0 --key K`,
-  then `npm run dev` and `npm run load`) all afternoon on your machine. `roast-judge-0` is the Module 3
-  hunt for anyone whose app died over the break.
+- **Seat 0, the fallback dataset.** Run your own app as seat 0 **on `main`** (`npm run setup -- --seat 0
+  --key K`, then `npm run dev` and `npm run load`) all afternoon on your machine. `roast-judge-0` is the
+  Module 3 hunt for anyone whose app died over the break, and the Module 4 outcome demo: `main` stamps
+  the prompt version and `gen_ai.conversation.id` from the start. Before the 2:50 flip, create track
+  (b)'s cost field and trigger on `roast-judge-0` so the trigger has fired by 3:55.
 - **The flip.** At ~2:50 run `npm run prompt v2` on seat 0 at the same moment as the room; roll back
   with `npm run prompt v1` in Module 3 part 2.
 - **Regenerating checkpoints** after changing `src/agent.js` or `src/telemetry.js`: see the

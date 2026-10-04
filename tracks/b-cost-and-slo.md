@@ -10,8 +10,9 @@ dataset already holds v1 and v2 traffic from Module 3.
 
 ### 1. A cost calculated field
 
-In Honeycomb, open your dataset `roast-judge-<seat>` → Dataset settings → Definitions → Derived
-columns → New. Name it `roastjudge.cost_usd`:
+In Honeycomb, open your dataset `roast-judge-<seat>` → Dataset settings → Calculated Fields (Derived
+Columns in older UI) → New. Create it on **your dataset**, not environment-wide, so it doesn't
+collide with everyone else's. Name it `roastjudge.cost_usd`:
 
 ```
 IF(EQUALS($gen_ai.request.model, "gpt-4.1-mini"), ($gen_ai.usage.input_tokens * 0.40 + $gen_ai.usage.output_tokens * 1.60) / 1000000, 0)
