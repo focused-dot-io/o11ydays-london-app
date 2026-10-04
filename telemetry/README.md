@@ -25,7 +25,7 @@ own sign-in only.
 | Agent | Template | Copy it to | Lands in dataset | Notes |
 |---|---|---|---|---|
 | Claude Code | `claude-settings.local.json` | `.claude/telemetry.local.json`, then start with `claude --settings .claude/telemetry.local.json` | `claude-code` | Cost is informational only on Pro/Max. Traces are beta (`CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`). Metrics every 10 s instead of 60 s |
-| Codex CLI | `codex-config.toml` + `envrc` | `.codex-home/config.toml`; `export CODEX_HOME=$PWD/.codex-home` (or copy `envrc` to `.envrc` for direnv) | `codex_cli_rs` (interactive; see the Codex notes below for `codex exec`) | Metrics overridden from the `statsig` default. Cost only with an API key. Tool arguments and output previews are exported even with prompt logging off |
+| Codex CLI | `codex-config.toml` + `envrc` | `.codex-home/config.toml`; `export CODEX_HOME=$PWD/.codex-home` (or copy `envrc` to `.envrc` for direnv) | `codex-app-server` (interactive `codex`), `codex_exec` (`codex exec`); see the Codex notes below | Metrics overridden from the `statsig` default. Cost only with an API key. Tool arguments and output previews are exported even with prompt logging off |
 | Antigravity CLI (`agy`) | `agy-hooks.json` + `agy.env` | `.agents/hooks.json` and `.agents/agy.env` | `antigravity-cli` | Events from hooks, via `telemetry/agy-hook.mjs`: one span per tool call, loop pass and turn end. No tokens, no metrics, no `user.email`. Never sends prompts, tool arguments or tool output |
 
 Metrics from Claude Code and Codex land in one shared dataset, `agent-metrics`, but keep the agent's own
@@ -180,10 +180,17 @@ and Codex only).
 
 ## Codex rehearsal notes (CLI 0.160.0)
 
-The service name, and so the dataset, depends on how Codex is launched. Interactive `codex` sends
-`service.name=codex_cli_rs`; `codex exec` sends `codex_exec`. In rehearsal, a CLI launched from
-Codex Desktop inherited `Codex Desktop` and landed in `codex-desktop`. If your events are not in
-`codex_cli_rs`, find them with an environment-wide query filtered by your `seat`.
+The service name, and so the dataset, depends on how Codex is launched:
+
+| How you start Codex | Dataset your session lands in |
+|---|---|
+| `codex` (interactive) | `codex-app-server`. The TUI runs its session on an in-process app server, so prompts, tokens and tool calls carry that service name. `codex_cli_rs` gets only a startup log and a metric |
+| `codex exec` | `codex_exec` |
+| A CLI launched from Codex Desktop | `codex-desktop` (it inherits `Codex Desktop`) |
+
+Don't hunt for the dataset: query environment-wide and filter by your `seat`, which every launch
+mode carries. (Verified on 0.160.0, 2026-10-04; older CLIs sent interactive sessions as
+`codex_cli_rs`, so expect the name to move again.)
 
 For Codex event queries, use `meta.signal_type = log` to avoid counting the same activity from
 both logs and traces. Filter token totals to `event.name = codex.sse_event` and

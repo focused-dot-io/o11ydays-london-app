@@ -19,7 +19,7 @@ environment = "o11ydays-london"
 # Prompt text stays redacted (this is the default; written out so nobody wonders).
 log_user_prompt = false
 
-# Events (codex.sse_event, codex.tool_result, ...) as OTLP logs -> dataset codex_cli_rs.
+# Events (codex.sse_event, codex.tool_result, ...) as OTLP logs -> dataset codex-app-server (interactive) or codex_exec (codex exec).
 [otel.exporter.otlp-http]
 endpoint = "https://api.honeycomb.io/v1/logs"
 protocol = "binary"
@@ -27,7 +27,7 @@ protocol = "binary"
 [otel.exporter.otlp-http.headers]
 "x-honeycomb-team" = "<KEY>"
 
-# Traces -> dataset codex_cli_rs.
+# Traces -> dataset codex-app-server (interactive) or codex_exec (codex exec).
 [otel.trace_exporter.otlp-http]
 endpoint = "https://api.honeycomb.io/v1/traces"
 protocol = "binary"
