@@ -107,7 +107,7 @@ test('telemetry/README.md defines the four Module 1 derived columns', () => {
     assert.ok(r.includes(col), `telemetry README should define ${col}`);
   }
   assert.match(r, /COALESCE/);
-  for (const field of ['input_tokens', 'input_token_count', 'tool_name', 'function_name', 'session.id', 'conversation.id', 'user.email']) {
+  for (const field of ['input_tokens', 'input_token_count', 'tool_name', 'session.id', 'conversation.id', 'user.email']) {
     assert.ok(r.includes(field), `telemetry README should mention ${field}`);
   }
   assert.match(r, /agent-metrics/);

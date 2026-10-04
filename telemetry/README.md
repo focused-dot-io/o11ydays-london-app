@@ -117,13 +117,16 @@ Definitions to paste:
 ```
 agent.input_tokens    COALESCE($input_tokens, $input_token_count)
 agent.output_tokens   COALESCE($output_tokens, $output_token_count)
-agent.tool            COALESCE($tool_name, $function_name)
+agent.tool            $tool_name
 agent.session         COALESCE($session.id, $conversation.id)
 ```
 
-(`function_name` is Gemini CLI's name for the tool, kept so older `gemini-cli` data still resolves.
-The Antigravity hook emits `tool_name` and `conversation.id` on purpose, so it needs no new
-`COALESCE` arms. It has no token counts, so it is missing from the token queries below.)
+(Codex and Claude Code share `tool_name`, and the Antigravity hook emits `tool_name` and
+`conversation.id` on purpose, so `agent.tool` needs no `COALESCE` and the others need no new arms.
+`COALESCE` rejects a column that does not exist yet in the environment, so the older
+`COALESCE($tool_name, $function_name)` (`function_name` was Gemini CLI's) cannot be created now that
+nothing sends `function_name`. Antigravity has no token counts, so it is missing from the token
+queries below.)
 
 Module 1's queries, environment-wide. Paste each into the query builder. They have no
 `time_range`: set the time range back far enough to include the seeded runs from before the day.
