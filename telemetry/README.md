@@ -33,9 +33,9 @@ Metrics from Claude Code and Codex land in one shared dataset, `agent-metrics`, 
 events and metrics. To see metrics on their own, choose the `agent-metrics` dataset, then group by
 `service.name` to compare agents.
 
-No supported agent (or a work-account agent on a locked-down laptop)? Use **Antigravity CLI on the
-free tier** with a personal Google account; it is preinstalled in the Codespace. (It replaced
-Gemini CLI, which stopped serving personal Google accounts on 18 June 2026.)
+Bring your own agent, signed in with a personal account: one of these three is a prerequisite, and
+there is no fallback agent. Antigravity CLI replaced Gemini CLI, which stopped serving personal
+Google accounts on 18 June 2026.
 
 ### Claude Code
 
