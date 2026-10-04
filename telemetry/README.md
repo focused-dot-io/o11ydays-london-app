@@ -196,10 +196,22 @@ have been seeded. For a Codex-only rehearsal, use `input_token_count`, `output_t
 column that does not yet exist. Current Codex traces also emit `gen_ai.usage.*`; choose one
 signal/event population when summing tokens.
 
-For a noninteractive rehearsal, the corpus-truth tests need localhost listeners. Run
-`codex exec --sandbox workspace-write -c sandbox_workspace_write.network_access=true` with the
-Act 1 prompt. The default restricted sandbox returned `listen EPERM`; enabling networking let
-all 329 task tests pass. This does not replace testing a fresh-home interactive login.
+The Act 1 tests, `npm run check-spans` and `npm run verify` open listeners on 127.0.0.1. Codex's
+default workspace-write sandbox blocks them (`listen EPERM`), so the template sets
+`sandbox_mode = "workspace-write"` with `[sandbox_workspace_write] network_access = true`. With
+that, plain `codex exec` or `codex` runs all three without an escalation prompt (tested on macOS).
+Inside a container, Codex's Linux sandbox (bubblewrap) may not be able to create namespaces at all
+(`bwrap: No permissions to create a new namespace`), which fails every sandboxed command. If that
+happens in the Codespace, start Codex with `codex --sandbox danger-full-access`: the Codespace is
+the sandbox.
+
+Codex reads files with its shell tool, so its tool mix is `exec_command` (and `exec`) plus
+`apply_patch`, with no separate read tool. `codex.tool_decision` and `codex.tool_result` both carry
+`tool_name`, so filter to `event.name = codex.tool_result` to count each call once.
+
+`codex logout` (or `/logout`) removes the credentials in the current `CODEX_HOME`. Run it from the
+shell where `CODEX_HOME=$PWD/.codex-home` is exported, or you sign out of your global Codex home
+instead.
 
 ## Antigravity rehearsal notes (agy 1.2.16)
 

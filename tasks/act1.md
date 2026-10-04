@@ -64,10 +64,12 @@ The value is a string, e.g. `"value": "7"`. Every agent's events carry `seat` (i
 
 Metrics share your agent's `service.name`: see the `agent-metrics` note in [telemetry/README.md](../telemetry/README.md#which-agent-which-files).
 
-You should see your agent's read tools (`Read`, `view_file`, ...), an edit or write tool
-(`Edit`, `replace_file_content`, ...), and the shell tool (`Bash`, `shell`, `run_command`), with the
-shell count at two or more: the failing test run and the passing one. Antigravity also sends one
-`agy.invocation` event per loop pass and one `agy.stop` per turn; they have no tool, so they show
-as a blank `agent.tool` row. In rehearsal, an Antigravity run (`gemini-3.8-flash-high`) took about
-8 minutes: 20 `run_command`, 13 `view_file`, 2 `replace_file_content`. `agent.tool` is a derived column defined in
+You should see your agent's read tools (`Read`, `view_file`, ...), an edit or write tool (`Edit`,
+`replace_file_content`, `apply_patch`, ...), and the shell tool (`Bash`, `run_command`,
+`exec_command`), with the shell count at two or more: the failing test run and the passing one.
+Codex reads files through its shell, so it shows only `exec_command` (and `exec`) and
+`apply_patch`. Antigravity also sends one `agy.invocation` event per loop pass and one `agy.stop`
+per turn; they have no tool, so they show as a blank `agent.tool` row. In rehearsal, an Antigravity
+run (`gemini-3.8-flash-high`) took about 8 minutes: 20 `run_command`, 13 `view_file`, 2
+`replace_file_content`. `agent.tool` is a derived column defined in
 [telemetry/README.md](../telemetry/README.md).

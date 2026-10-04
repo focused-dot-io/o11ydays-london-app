@@ -7,6 +7,13 @@
 # Format: https://developers.openai.com/codex/config-advanced (the [otel] section) and
 #         OtelConfigToml in codex-rs/config/src/types.rs.
 
+# The corpus tests, `npm run check-spans` and `npm run verify` open listeners on 127.0.0.1. Codex's
+# default workspace-write sandbox has no network, so they fail with `listen EPERM`. Let them listen.
+sandbox_mode = "workspace-write"
+
+[sandbox_workspace_write]
+network_access = true
+
 [otel]
 environment = "o11ydays-london"
 # Prompt text stays redacted (this is the default; written out so nobody wonders).
