@@ -136,13 +136,14 @@ npm run load
 | Command | What it does |
 |---|---|
 | `npm run setup -- --seat N --key K` | Write `.env` from `.env.example` with your seat and key; restarts `npm run dev` if it is running |
-| `npm run dev` | Run all three services locally (app, pub-guide, model-replay), restart any that crash; saving a file under `src/` restarts the app; reads `.env` |
+| `npm run dev` | Run all three services locally (app, pub-guide, model-replay), restart any that crash; reads `.env` |
+| `npm run restart` | Restart the running `npm run dev` after you edit `src/` (the OTel SDK only starts with a new process), and wait until it answers again. Docker reloads on save by itself |
 | `docker compose up` | The same three services in Docker, with the repo bind-mounted and `node --watch`, so saving a file restarts the service |
 | `npm start` | Run only the app (port 3000); you start pub-guide and model-replay yourself |
 | `npm run first-trace` | Send one corpus roast to the app; print its trace ID, your dataset name and a direct link to the trace in Honeycomb |
 | `npm run load` | Background load generator: one run every 4 s (`LOAD_INTERVAL_MS`), about 30% through all three turns, always on the replay model; survives app restarts. Ctrl-C to stop |
 | `npm run prompt` | Show the current prompt version |
-| `npm run prompt v1` / `npm run prompt v2` | Switch the judge's system prompt at runtime, no restart (Module 3's flip and rollback). Held in memory: any app restart (including saving a file under `src/`) goes back to `v1` |
+| `npm run prompt v1` / `npm run prompt v2` | Switch the judge's system prompt at runtime, no restart (Module 3's flip and rollback). Held in memory: any app restart (including `npm run restart`) goes back to `v1` |
 | `npm run check-spans` | "Is Module 2 done?" A judge, appeal and final turn against an in-memory exporter, checked against the Module 2 span set. Prints `PASS` or what is missing |
 | `npm run verify` | "Is this checkpoint healthy as shipped?" Checks the expectation set named in `CHECKPOINT`; `npm run verify -- <set>` checks another set |
 | `npm run catchup -- N` | Jump to checkpoint `N` (`0 1 2 2-cut 3 4`), parking your changes first |
