@@ -59,12 +59,23 @@ Paste it into the query builder, with the seat number from your seat card in pla
   "time_range": 900,
   "calculations": [{ "op": "COUNT" }],
   "breakdowns": ["service.name", "agent.tool"],
-  "filters": [{ "column": "seat", "op": "=", "value": "<your seat>" }]
+  "filters": [
+    { "column": "seat", "op": "=", "value": "<your seat>" },
+    { "column": "event.name", "op": "in", "value": ["tool_result", "codex.tool_result", "agy.tool_result"] },
+    { "column": "name", "op": "does-not-start-with", "value": "event otel" }
+  ]
 }
 ```
 
-The value is a string, e.g. `"value": "7"`. Every agent's events carry `seat` (it comes from
+The seat value is a string, e.g. `"value": "7"`. Every agent's events carry `seat` (it comes from
 `OTEL_RESOURCE_ATTRIBUTES`), so this works whichever agent you use and however you signed in.
+
+The other two filters count each tool call once. Without them Claude Code reports every call three
+times (a `tool_decision` log, a `tool_result` log and a span) and Codex twice (a `codex.tool_result`
+log and a copy on its trace, named `event otel/src/tool_result.rs:54`). `event.name` keeps one
+result event per agent: `tool_result` (Claude Code), `codex.tool_result` (Codex) and
+`agy.tool_result` (Antigravity). The `name` filter drops Codex's trace copy; the others have no
+`name` or a different one, so they stay.
 
 Metrics share your agent's `service.name`: see the `agent-metrics` note in [telemetry/README.md](../telemetry/README.md#which-agent-which-files).
 
@@ -72,8 +83,7 @@ You should see your agent's read tools (`Read`, `view_file`, ...), an edit or wr
 `replace_file_content`, `apply_patch`, ...), and the shell tool (`Bash`, `run_command`,
 `exec_command`), with the shell count at two or more: the failing test run and the passing one.
 Codex reads files through its shell, so it shows only `exec_command` (and `exec`) and
-`apply_patch`. Antigravity also sends one `agy.invocation` event per loop pass and one `agy.stop`
-per turn; they have no tool, so they show as a blank `agent.tool` row. In rehearsal, an Antigravity
+`apply_patch`. In rehearsal, an Antigravity
 run (`gemini-3.8-flash-high`) took about 8 minutes: 20 `run_command`, 13 `view_file`, 2
 `replace_file_content`. `agent.tool` is a derived column defined in
 [telemetry/README.md](../telemetry/README.md).
