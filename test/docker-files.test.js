@@ -3,9 +3,10 @@
 // Phase 8 (fast, no Docker daemon): the container and Codespace files.
 // SPEC: "Run with `docker compose up` (three services, bind mount, `node --watch`)";
 // `docker-compose.yml`, `Dockerfile` (one image, three commands, pinned `node:22.22.0-alpine`), `.nvmrc`;
-// `.devcontainer/devcontainer.json` (javascript-node:22 image, postCreateCommand: npm ci + pinned global
+// `.devcontainer/devcontainer.json` (javascript-node:22 image, onCreateCommand: npm ci + pinned global
 // installs of the three coding-agent CLIs + checkout checkpoint-0 when on main with a clean tree,
-// postStartCommand scripts/codespace-start.sh, ports 3000/4100/4200).
+// postStartCommand scripts/codespace-start.sh, ports 3000/4100/4200). onCreateCommand, not
+// postCreateCommand: prebuilds run onCreate/updateContent only, so this is what makes the prebuild pay.
 //
 // ASSUMPTIONS (beyond SPEC.md; the implementer must follow these):
 //  Dockerfile
@@ -33,9 +34,10 @@
 //  .devcontainer/devcontainer.json is plain JSON (no comments, no trailing commas: JSON.parse must work):
 //   - image mcr.microsoft.com/devcontainers/javascript-node:22, forwardPorts [3000, 4100, 4200],
 //     portsAttributes with a `label` for "3000", "4100", "4200",
-//     postCreateCommand "bash .devcontainer/post-create.sh", postStartCommand "bash scripts/codespace-start.sh",
+//     onCreateCommand "bash .devcontainer/on-create.sh" (and no postCreateCommand, which a prebuild
+//     would not run), postStartCommand "bash scripts/codespace-start.sh",
 //     no docker-in-docker feature (the Codespace uses `npm run dev`, not compose).
-//  .devcontainer/post-create.sh: bash, `npm ci`, `npm i -g` (or `npm install -g`) of
+//  .devcontainer/on-create.sh: bash, `npm ci`, `npm i -g` (or `npm install -g`) of
 //     @anthropic-ai/claude-code, @openai/codex and @google/gemini-cli each pinned `@X.Y.Z`, and a
 //     checkout of checkpoint-0 guarded by "on main" and an empty `git status --porcelain`.
 //  .nvmrc is exactly `22.22.0` (trailing newline allowed).
@@ -256,14 +258,15 @@ test('.devcontainer/devcontainer.json is plain JSON with the Codespace contract'
     assert.equal(typeof dc.portsAttributes[p].label, 'string');
     assert.ok(dc.portsAttributes[p].label.trim(), `portsAttributes.${p}.label empty`);
   }
-  assert.equal(dc.postCreateCommand, 'bash .devcontainer/post-create.sh');
+  assert.equal(dc.onCreateCommand, 'bash .devcontainer/on-create.sh');
+  assert.equal(dc.postCreateCommand, undefined, 'prebuilds skip postCreateCommand: the installs must be onCreateCommand');
   assert.equal(dc.postStartCommand, 'bash scripts/codespace-start.sh');
   assert.doesNotMatch(raw, /docker-in-docker/, 'the Codespace runs npm run dev, not compose: no docker-in-docker');
   assert.doesNotMatch(raw, /HONEYCOMB_API_KEY\s*"\s*:\s*"\S|OPENAI_API_KEY\s*"\s*:\s*"\S/, 'no credentials in devcontainer.json');
 });
 
-test('.devcontainer/post-create.sh: npm ci, pinned agent CLIs, guarded checkout of checkpoint-0', () => {
-  const rel = '.devcontainer/post-create.sh';
+test('.devcontainer/on-create.sh: npm ci, pinned agent CLIs, guarded checkout of checkpoint-0', () => {
+  const rel = '.devcontainer/on-create.sh';
   assert.ok(exists(rel), `${rel} missing`);
   const src = read(rel);
   assert.match(src.split('\n')[0], /^#!\/usr\/bin\/env bash$|^#!\/bin\/bash$/, 'bash shebang');

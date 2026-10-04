@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-# Codespace postCreateCommand: runs once, when the Codespace is created (or rebuilt).
+# Codespace onCreateCommand: runs once, when the container is created (or rebuilt).
+#
+# onCreateCommand, not postCreateCommand, on purpose: Codespaces prebuilds run onCreateCommand and
+# updateContentCommand, but never postCreateCommand (that one runs at every Codespace creation).
+# As postCreateCommand this script cost ~60 s per Codespace even with a prebuild ready (npm ci 8 s,
+# the three CLIs 45 s); as onCreateCommand it is baked into the prebuild and a Codespace opens in
+# seconds. Without a prebuild (any branch but checkpoint-0) it still runs at creation, as before.
 # The app itself is started by scripts/codespace-start.sh (postStartCommand), via `npm run dev`.
 set -euo pipefail
 
