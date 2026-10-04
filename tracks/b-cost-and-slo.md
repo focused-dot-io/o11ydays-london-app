@@ -49,8 +49,15 @@ Then divide by runs, grouped by the same field:
   "breakdowns": ["gen_ai.prompt.version"]
 }
 ```
-v2 makes more model calls per run (it calls `lookup_pub`, sometimes twice, before it judges), so
-each v2 verdict costs more while telling you less.
+Divide the first by the second: cost per run. You might expect v2 to cost more, since it makes
+more model calls per run (it calls `lookup_pub`, sometimes twice, before it judges). It costs
+**less**, about 10% in rehearsal. Cost follows tokens, not calls: v1 sends every `score_component`
+result back to the model, so its second call carries a long prompt, while v2 skips the scoring
+and sends short ones.
+
+So a cost dashboard would have scored the v2 flip as an improvement. Error rate held, latency
+held, and spend went down, while the verdicts stopped looking at the plate. That is why step 3
+alerts on behaviour.
 
 ### 3. A trigger on agent behaviour
 
@@ -88,14 +95,14 @@ and watch it resolve.
 
 ## The query that proves it (green sticky note)
 
-Cost grouped by `gen_ai.prompt.version` showing v2 dearer per run, **and** your trigger in the
-Triggered state after the v2 flip.
+Cost per run grouped by `gen_ai.prompt.version` (v2 slightly cheaper), **and** your trigger in
+the Triggered state after the v2 flip.
 
 ## Teaching beat
 
-- Error rate and latency alerts would not have caught Module 3's break: nothing threw, every
-  request returned 200. The alert that works is on **behaviour**: how many components the agent
-  actually scored. That is an attribute you chose to put on your own span.
+- Error rate, latency and cost alerts would not have caught Module 3's break: nothing threw, every
+  request returned 200, and v2 is cheaper. The alert that works is on **behaviour**: how many
+  components the agent actually scored. That is an attribute you chose to put on your own span.
 - Cost is a derived column, not a metric you have to pre-aggregate: tokens are on every chat span,
   so price changes are an edit to one formula, applied to history too.
 - An SLO needs a per-event definition of "good". Here that is awkward (a final ruling legitimately

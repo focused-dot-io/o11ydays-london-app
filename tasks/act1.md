@@ -45,8 +45,11 @@ above are the ones that check the corpus.
 
 ## What you should see in Honeycomb
 
-Your agent's events land in its own dataset (`claude-code`, `codex_cli_rs` or `gemini-cli`) and
-its metrics in `agent-metrics`. Module 1's tool-mix query, environment-wide, last 15 minutes.
+Your agent's events land in its own dataset (`claude-code`, `gemini-cli`, or for Codex
+`codex-app-server` when interactive and `codex_exec` under `codex exec`; see
+[telemetry/README.md](../telemetry/README.md#which-agent-which-files)) and its metrics in
+`agent-metrics`. You don't need to know which: the query below is environment-wide and finds you
+by `seat`. Module 1's tool-mix query, last 15 minutes.
 Paste it into the query builder, with the seat number from your seat card in place of
 `<your seat>`:
 
