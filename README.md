@@ -43,7 +43,8 @@ that can reach github.com. The link is on your seat card and here:
 [codespaces.new/focused-dot-io/o11ydays-london-app/tree/checkpoint-0](https://codespaces.new/focused-dot-io/o11ydays-london-app/tree/checkpoint-0).
 
 VS Code asks **"Do you trust the authors of the files in this folder?"** the first time: click
-**Trust Folder & Continue** (the app is already running; this only unlocks the terminal).
+**Trust Folder & Continue**. Until you do, the terminal cannot open and the app may not start; a
+few seconds after the click the terminal prints `app: started` or `app: running`, and port 3000 is up.
 
 **Next, raise your Codespace idle timeout** (GitHub Settings → Codespaces →
 Default idle timeout, up to 240 minutes) so it survives the 3:00 break. The default is 30 minutes,
