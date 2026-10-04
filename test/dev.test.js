@@ -18,6 +18,8 @@
 //    (with backoff).
 //  - Writes its own pid to .dev.pid (override DEV_PIDFILE) and removes it on exit.
 //  - SIGHUP: restart all three children. SIGINT/SIGTERM: kill children, remove pidfile, exit 0.
+//  - A file change under DEV_WATCH_DIR (default src/) restarts only the app, printing
+//    `<file> changed: restarting app`; DEV_WATCH=0 turns watching off.
 
 const { test, after } = require('node:test');
 const assert = require('node:assert/strict');
@@ -111,4 +113,39 @@ test('dev.mjs: starts all three, serves /judge, restarts on SIGHUP, exits cleanl
   assert.ok(!fs.existsSync(pidfile), 'pidfile removed on exit');
   const free = await waitFor(async () => (await Promise.all(ports.map(portFree))).every(Boolean), 3000, 100);
   assert.ok(free, 'all three ports free after exit (children killed)');
+});
+
+test('dev.mjs: a file change under the watched directory restarts only the app', { timeout: 30000 }, async () => {
+  const [app, pub, replay] = [await freePort(), await freePort(), await freePort()];
+  const ports = [app, pub, replay];
+  const watchDir = fs.mkdtempSync(path.join(tmp, 'watch-'));
+  const w = spawnLong(process.execPath, ['scripts/dev.mjs'], {
+    env: {
+      ROASTJUDGE_EXPORTER: 'console',
+      PORT: String(app),
+      PUB_GUIDE_PORT: String(pub),
+      REPLAY_PORT: String(replay),
+      DEV_PIDFILE: path.join(tmp, 'dev-watch.pid'),
+      DEV_WATCH_DIR: watchDir,
+      REPLAY_LATENCY_SCALE: '0',
+      REPLAY_FAIL_EVERY: '0',
+    },
+  });
+  try {
+    const up = await waitFor(async () => (await Promise.all(ports.map(healthy))).every(Boolean) || Boolean(w.exited), 10000, 100);
+    assert.ok(up && !w.exited, `all three /healthz within 10 s\n${w.info()}`);
+    assert.match(w.stdout, /watching /, w.info());
+
+    const before = startedCount(w);
+    fs.writeFileSync(path.join(watchDir, 'agent.js'), '// edited\n');
+    const restarted = await waitFor(() => /agent\.js changed: restarting app/.test(w.stdout) && startedCount(w) >= before + 1, 5000, 50);
+    assert.ok(restarted, `file change restarts the app\n${w.info()}`);
+    const upAgain = await waitFor(async () => healthy(app), 5000, 100);
+    assert.ok(upAgain, `app /healthz again after the restart\n${w.info()}`);
+    await new Promise((r) => setTimeout(r, 500));
+    assert.equal(startedCount(w), before + 1, `only the app restarts, once\n${w.info()}`);
+  } finally {
+    w.child.kill('SIGTERM');
+    await waitFor(() => Boolean(w.exited), 5000, 50);
+  }
 });

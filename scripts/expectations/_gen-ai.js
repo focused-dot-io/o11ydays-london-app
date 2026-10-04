@@ -8,7 +8,7 @@ const u = require('./_util.js');
 const agentOf = (ctx) => u.one(u.turnSpans(ctx, 0), u.AGENT);
 const chatsOf = (ctx) => u.atLeast(u.turnSpans(ctx, 0), u.CHAT, 2);
 
-/** invoke_agent + chat: what the openai one-liner and Bite 1 give you. */
+/** invoke_agent + chat: the openai one-liner (Bite 1) plus withAgentSpan (Bite 2). */
 const agentChecks = [
   u.check('invoke_agent roast-judge: one INTERNAL span with gen_ai.operation.name and gen_ai.agent.name', (ctx) => {
     const agent = agentOf(ctx);

@@ -20,7 +20,7 @@ function hint(missing) {
     lines.push('hint: no chat spans. Module 2 Bite 1: add `new OpenAIInstrumentation()` to the instrumentations in src/telemetry.js.');
   }
   if (missing.includes('invoke_agent roast-judge')) {
-    lines.push('hint: no invoke_agent span. Module 2 Bite 1: fill in withAgentSpan() in src/agent.js (TODO(module-2)).');
+    lines.push('hint: no invoke_agent span. Module 2 Bite 2: fill in withAgentSpan() in src/agent.js (TODO(module-2)).');
   }
   if (missing.some((n) => n.startsWith('execute_tool '))) {
     lines.push('hint: no execute_tool spans. Module 2 Bite 2: fill in withToolSpan() in src/agent.js (TODO(module-2)).');

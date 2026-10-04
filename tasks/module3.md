@@ -72,5 +72,5 @@ npm run prompt v1
 
 Within a couple of minutes, new first verdicts are back to about 3 components (3.18 in rehearsal).
 
-Restarting the app (including `npm run catchup` and `npm run setup`) also puts the prompt back on
+Restarting the app (including `npm run catchup`, `npm run setup` and saving a file under `src/`) also puts the prompt back on
 `v1`; if your v2 data stops early, check `npm run prompt`.

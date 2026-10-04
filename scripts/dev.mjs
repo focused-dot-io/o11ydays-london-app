@@ -9,6 +9,9 @@
 // PUB_GUIDE_URL unless you set those yourself.
 //
 // - A child that crashes is restarted with backoff ("restarting <name>").
+// - Saving a file under src/ restarts the app ("src/agent.js changed: restarting app"), so Module 2
+//   and 3 edits reach the running app as they do under docker compose's `node --watch`. Override
+//   the watched directory with DEV_WATCH_DIR; DEV_WATCH=0 turns watching off.
 // - SIGHUP restarts all three (npm run setup and codespace-start.sh send it after changing .env).
 // - Ctrl-C / SIGTERM stops all three and exits.
 // - Our pid is written to .dev.pid (override with DEV_PIDFILE) and removed on exit.
@@ -57,6 +60,8 @@ const BACKOFF_START_MS = 500;
 const BACKOFF_MAX_MS = 10000;
 const HEALTHY_AFTER_MS = 10000; // a child that ran this long resets its crash backoff
 const KILL_GRACE_MS = 3000;
+const WATCH_DEBOUNCE_MS = 300;
+const WATCH_DIR = path.resolve(ROOT, process.env.DEV_WATCH_DIR || 'src');
 
 let stopping = false;
 // Per service: { child, timer, backoff, startedAt }
@@ -108,6 +113,47 @@ async function stopAll() {
   await Promise.all(waits);
 }
 
+/** Restart one service now (file change), resetting its crash backoff. */
+function restartService(service, reason) {
+  const st = state.get(service.name);
+  console.log(`${reason}: restarting ${service.name}`);
+  clearTimeout(st.timer);
+  st.timer = null;
+  st.backoff = BACKOFF_START_MS;
+  const child = st.child;
+  st.child = null; // tells the exit handler this exit is deliberate
+  if (!child || child.exitCode !== null || child.signalCode !== null) {
+    start(service);
+    return;
+  }
+  const force = setTimeout(() => child.kill('SIGKILL'), KILL_GRACE_MS);
+  child.once('exit', () => {
+    clearTimeout(force);
+    if (!stopping && !restarting && !st.child) start(service);
+  });
+  child.kill('SIGTERM');
+}
+
+/** Restart the app when anything under WATCH_DIR changes (debounced: editors write in bursts). */
+function watchApp() {
+  if (process.env.DEV_WATCH === '0') return;
+  const app = SERVICES.find((s) => s.name === 'app');
+  let pending = null;
+  try {
+    fs.watch(WATCH_DIR, { recursive: true }, (_event, file) => {
+      if (stopping) return;
+      clearTimeout(pending);
+      const changed = path.relative(ROOT, path.join(WATCH_DIR, file || ''));
+      pending = setTimeout(() => {
+        if (!stopping && !restarting) restartService(app, `${changed} changed`);
+      }, WATCH_DEBOUNCE_MS);
+    });
+    console.log(`watching ${path.relative(ROOT, WATCH_DIR) || '.'}/: saving a file there restarts the app`);
+  } catch (err) {
+    console.log(`not watching ${WATCH_DIR} (${err.message}); after editing, restart with: kill -HUP $(cat .dev.pid)`);
+  }
+}
+
 let restarting = null;
 async function restartAll() {
   if (restarting) return restarting;
@@ -150,3 +196,4 @@ process.on('SIGTERM', shutdown);
 
 fs.writeFileSync(PIDFILE, `${process.pid}\n`);
 SERVICES.forEach(start);
+watchApp();
