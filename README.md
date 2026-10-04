@@ -42,7 +42,10 @@ to launch a Codespace; the free hours every personal account has cover the after
 that can reach github.com. The link is on your seat card and here:
 [codespaces.new/focused-dot-io/o11ydays-london-app/tree/checkpoint-0](https://codespaces.new/focused-dot-io/o11ydays-london-app/tree/checkpoint-0).
 
-**First thing after it opens: raise your Codespace idle timeout** (GitHub Settings → Codespaces →
+VS Code asks **"Do you trust the authors of the files in this folder?"** the first time: click
+**Trust Folder & Continue** (the app is already running; this only unlocks the terminal).
+
+**Next, raise your Codespace idle timeout** (GitHub Settings → Codespaces →
 Default idle timeout, up to 240 minutes) so it survives the 3:00 break. The default is 30 minutes,
 which is exactly the length of the break.
 
@@ -259,9 +262,14 @@ The workshop ingest keys are revoked after the day.
   `checkpoint-0` (Settings → General → Default branch), so fresh clones and new Codespaces land on
   Module 0's start. Set it back to `main` afterwards. (The devcontainer also moves a clean `main` to
   `checkpoint-0` on creation.)
-- **Codespaces prebuilds.** Enable them for `checkpoint-0` (Settings → Codespaces →
-  Set up prebuild), so a red-lane Codespace opens in under a minute. Prebuilds are a repo setting,
-  not a file in this repo.
+- **Codespaces prebuilds.** Set up for `checkpoint-0` (Settings → Codespaces → Prebuild
+  configuration: every push, Europe West only, 2 versions kept). The prebuild bakes in `npm ci` and
+  the three CLIs because they run from `onCreateCommand` (prebuilds never run `postCreateCommand`),
+  so a Codespace opens in seconds. Two gotchas: a prebuild run takes ~30 minutes and a push to
+  `checkpoint-0` (e.g. `build-checkpoints.sh`) starts one, during which new Codespaces say
+  "Prebuild in progress" and build from scratch, so freeze `checkpoint-0` the night before and check
+  the run is green (Settings → Codespaces → See output); and the prebuild is only for Europe West,
+  so an attendee whose GitHub picks another region gets a cold build.
 - **Seat 0, the fallback dataset.** Run your own app as seat 0 (`npm run setup -- --seat 0 --key K`,
   then `npm run dev` and `npm run load`) all afternoon on your machine. `roast-judge-0` is the Module 3
   hunt for anyone whose app died over the break.

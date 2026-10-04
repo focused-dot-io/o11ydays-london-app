@@ -11,15 +11,12 @@
     "4100": { "label": "pub-guide", "onAutoForward": "silent" },
     "4200": { "label": "model-replay", "onAutoForward": "silent" }
   },
-  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "onCreateCommand": "bash .devcontainer/on-create.sh",
   "postStartCommand": "bash scripts/codespace-start.sh",
   "postAttachCommand": "bash scripts/codespace-start.sh --if-stopped",
   "customizations": {
     "vscode": {
-      "extensions": [],
-      "settings": {
-        "security.workspace.trust.enabled": false
-      }
+      "extensions": []
     }
   }
 }
