@@ -65,6 +65,7 @@ The value is a string, e.g. `"value": "7"`. Every agent's events carry `seat` (i
 Metrics share your agent's `service.name`: see the `agent-metrics` note in [telemetry/README.md](../telemetry/README.md#which-agent-which-files).
 
 You should see your agent's read tools (`Read`, `read_file`, ...), an edit or write tool, and the
-shell tool (`Bash`, `run_shell_command`, `shell`), with the shell count at two or more: the failing
-test run and the passing one. `agent.tool` is a derived column defined in
+shell tool (`Bash`, `run_shell_command`, `exec_command`), with the shell count at two or more: the
+failing test run and the passing one. Codex reads files through its shell, so it shows only
+`exec_command` (and `exec`) and `apply_patch`. `agent.tool` is a derived column defined in
 [telemetry/README.md](../telemetry/README.md).
