@@ -148,7 +148,9 @@ npm run load
 | `npm run catchup -- N` | Jump to checkpoint `N` (`0 1 2 2-cut 3 4`), parking your changes first |
 | `npm test` | The project's own test suite (maintainers; some tests expect the finished `main`) |
 
-`check-spans` and `verify` need no key and no network; nothing they do reaches Honeycomb.
+`check-spans` and `verify` need no key and no network; nothing they do reaches Honeycomb. They do
+open local listeners, which Codex's default sandbox blocks (`listen EPERM`): see
+[tasks/act1.md](tasks/act1.md) for the fix.
 
 ## Architecture
 

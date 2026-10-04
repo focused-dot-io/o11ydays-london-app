@@ -54,6 +54,11 @@ key or network needed) and print `PASS` or a list of what is missing.
   `PASS`. That PASS is the Module 2 green sticky note. It passes on `checkpoint-3`, `checkpoint-4`
   and `main`.
 
+Both start the app and its two fake services on 127.0.0.1. If you run them through Codex and they
+print `listen EPERM: operation not permitted 127.0.0.1`, Codex's sandbox is blocking local
+listeners, not your code failing. See the Codex note in [tasks/act1.md](../tasks/act1.md) for the
+two config lines that allow it.
+
 ## Workshop-day setting: default branch
 
 For the workshop window, set the GitHub repo's default branch to `checkpoint-0` (Settings >
