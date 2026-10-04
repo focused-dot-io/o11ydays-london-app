@@ -14,9 +14,7 @@ Start on `checkpoint-4` (`npm run catchup -- 4`) with the app running and your l
    ```
 
 2. **Restart the app** so it rereads `.env`:
-   - `npm run dev`: Ctrl-C and run `npm run dev` again, or `kill -HUP $(cat .dev.pid)` from another
-     terminal (re-running `npm run setup -- --seat N --key K` sends the same signal and keeps your
-     extra line);
+   - `npm run dev` (the Codespace): `npm run restart`;
    - `docker compose up`: `docker compose up -d roast-judge` (recreates the container with the new
      `.env`; `node --watch` alone does not reread it).
 
@@ -77,7 +75,7 @@ waterfall. In your own app you would send the logs to Honeycomb instead and corr
 ## If stuck
 
 - **No content after flipping on:** the app did not restart, or the value is not exactly `true`.
-  `grep CAPTURE .env`, then restart. Under Docker, `docker compose up -d roast-judge`, not a file save.
+  `grep CAPTURE .env`, then `npm run restart`. Under Docker, `docker compose up -d roast-judge`, not a file save.
 - **No chat spans at all:** you are not on `checkpoint-4`; `npm run catchup -- 4` and restart.
 - **Content still there after flipping off:** you are looking at an older trace. Check the trace
   ID `first-trace` printed this time.
