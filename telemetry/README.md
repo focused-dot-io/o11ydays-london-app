@@ -130,9 +130,11 @@ so `INT()` turns them into numbers `SUM` can add. Antigravity has no token count
 queries below.)
 
 Module 1's queries, environment-wide. Paste each into the query builder. They have no
-`time_range`: set the time range back far enough to include the seeded runs from before the day.
+`time_range`: use the last 24 hours, which includes the runs seeded the day before.
 
-1. Tokens by agent and model:
+1. Tokens by agent and model. `meta.signal_type = log` counts each model call once (Claude Code
+   puts its token counts on both the `api_request` log and a trace span, which would double it);
+   `exists` drops the rows from datasets with no token counts. Query 4 uses the same filters.
 
    ```json
    {
@@ -140,7 +142,11 @@ Module 1's queries, environment-wide. Paste each into the query builder. They ha
        { "op": "SUM", "column": "agent.input_tokens" },
        { "op": "SUM", "column": "agent.output_tokens" }
      ],
-     "breakdowns": ["service.name", "model"]
+     "breakdowns": ["service.name", "model"],
+     "filters": [
+       { "column": "meta.signal_type", "op": "=", "value": "log" },
+       { "column": "agent.input_tokens", "op": "exists" }
+     ]
    }
    ```
 
@@ -158,12 +164,16 @@ Module 1's queries, environment-wide. Paste each into the query builder. They ha
    }
    ```
 
-3. Turns per session:
+3. Tool calls per session, longest first: query 2's filters, grouped by session:
 
    ```json
    {
      "calculations": [{ "op": "COUNT" }],
-     "breakdowns": ["agent.session"],
+     "breakdowns": ["service.name", "agent.session"],
+     "filters": [
+       { "column": "event.name", "op": "in", "value": ["tool_result", "codex.tool_result", "agy.tool_result"] },
+       { "column": "name", "op": "does-not-start-with", "value": "event otel" }
+     ],
      "orders": [{ "op": "COUNT", "order": "descending" }]
    }
    ```
@@ -177,7 +187,11 @@ Module 1's queries, environment-wide. Paste each into the query builder. They ha
        { "op": "SUM", "column": "agent.input_tokens" },
        { "op": "SUM", "column": "agent.output_tokens" }
      ],
-     "breakdowns": ["user.email"]
+     "breakdowns": ["user.email"],
+     "filters": [
+       { "column": "meta.signal_type", "op": "=", "value": "log" },
+       { "column": "agent.input_tokens", "op": "exists" }
+     ]
    }
    ```
 
@@ -219,11 +233,8 @@ happens in the Codespace, start Codex with `codex --sandbox danger-full-access`:
 the sandbox.
 
 Codex reads files with its shell tool, so its tool mix is `exec_command` (and `exec`) plus
-`apply_patch`, with no separate read tool. `codex.tool_decision` and `codex.tool_result` both carry
-`tool_name`, so filter to `event.name = codex.tool_result` to count each call once. That event
-arrives twice, as a log and as a span event named `event otel/src/tool_result.rs:54`, so also
-filter `meta.signal_type = log` (or `name does-not-start-with "event otel"`, which the Module 1
-tool-mix query uses).
+`apply_patch`, with no separate read tool. Why the tool-mix query needs both filters:
+[tasks/act1.md](../tasks/act1.md#what-you-should-see-in-honeycomb).
 
 `codex logout` (or `/logout`) removes the credentials in the current `CODEX_HOME`. Run it from the
 shell where `CODEX_HOME=$PWD/.codex-home` is exported, or you sign out of your global Codex home
@@ -247,10 +258,7 @@ otherwise sit in a stopped Codespace.
 
 ## Status of these templates
 
-Drafted from each agent's docs and source; they must be **cold-tested at the dry run** (the prep
-TODO), for each agent: the events land in the right dataset with `seat` on them, metrics land in
-`agent-metrics`, no prompt text appears, and the calculated fields resolve across all three. In
-particular: Claude Code's `api_request` field names are not all documented (confirm against real
-data); Claude Code honouring `--settings .claude/telemetry.local.json` for telemetry; Codex picking up `OTEL_RESOURCE_ATTRIBUTES`
-for its resource; and a fresh `CODEX_HOME` login on a ChatGPT plan, including device-code login in
-the Codespace.
+Cold-tested against the US workshop environment: Claude Code with `--settings` (2026-10-03),
+Codex under a repo-local `CODEX_HOME` and Antigravity's hooks (both 2026-10-04): events land with
+`seat`, metrics in `agent-metrics`, no prompt text, and the calculated fields resolve across all
+three. Still open: Codex login (`--device-auth`) and its sandbox inside the Codespace.
