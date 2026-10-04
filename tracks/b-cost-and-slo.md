@@ -26,38 +26,36 @@ The usage attributes live on the auto-generated `chat gpt-4.1-mini` spans. Those
 
 ### 2. Cost by prompt version
 
-Paste this into the query builder on your dataset. The last 90 minutes reaches back to Module 3:
+Paste this into the query builder on your dataset. The last 90 minutes reaches back to Module 3.
+It totals cost and counts runs (traces) per prompt version, then divides (per 1,000 runs, because a
+single run costs a fraction of a tenth of a cent and rounds to 0.00):
 
 ```json
 {
   "time_range": 5400,
-  "calculations": [{ "op": "SUM", "column": "roastjudge.cost_usd" }],
+  "calculations": [
+    { "op": "SUM", "column": "roastjudge.cost_usd", "name": "cost" },
+    { "op": "COUNT_DISTINCT", "column": "trace.trace_id", "name": "runs" },
+    { "op": "COUNT", "name": "calls" }
+  ],
+  "formulas": [
+    { "name": "usd_per_1000_runs", "expression": "$cost / $runs * 1000" },
+    { "name": "model_calls_per_run", "expression": "$calls / $runs" }
+  ],
   "filters": [{ "column": "name", "op": "starts-with", "value": "chat" }],
   "breakdowns": ["gen_ai.prompt.version"]
 }
 ```
 
-Spans from before you stamped show up as a blank `gen_ai.prompt.version` row. Ignore it.
+Spans from before you stamped show up as a blank `gen_ai.prompt.version` row. Ignore it. Add
+`root.http.route` to the breakdowns to split first verdicts (`/judge`) from appeals and finals.
 
-Then divide by runs, grouped by the same field:
-
-```json
-{
-  "time_range": 5400,
-  "calculations": [{ "op": "COUNT" }],
-  "filters": [{ "column": "name", "op": "=", "value": "invoke_agent roast-judge" }],
-  "breakdowns": ["gen_ai.prompt.version"]
-}
-```
-Divide the first by the second: cost per run. You might expect v2 to cost more, since it makes
-more model calls per run (it calls `lookup_pub`, sometimes twice, before it judges). It costs
-**less**, about 10% in rehearsal. Cost follows tokens, not calls: v1 sends every `score_component`
-result back to the model, so its second call carries a long prompt, while v2 skips the scoring
-and sends short ones.
-
-So a cost dashboard would have scored the v2 flip as an improvement. Error rate held, latency
-held, and spend went down, while the verdicts stopped looking at the plate. That is why step 3
-alerts on behaviour.
+Compare per run, not the plain `SUM`: the sum mostly tells you how long each version ran. On the
+replay model, v2 makes more model calls per first verdict (it goes to `lookup_pub` before it
+judges; in rehearsal 2.7 calls against 1.9 for v1), but each call carries fewer tokens, so **a v2
+run costs about the same as a v1 run** (in rehearsal $0.84 against $0.86 per 1,000 first
+verdicts). The same money now buys a verdict that scored almost nothing. Cost would not have caught
+this break either.
 
 ### 3. A trigger on agent behaviour
 
@@ -70,7 +68,9 @@ Triggers → New trigger, on your dataset. The query:
 }
 ```
 
-Then set the threshold to `< 1`, the time range to 5 minutes and the frequency to every 1 minute.
+Then set the threshold to `< 1`, the time range to 5 minutes and the frequency to every 2 minutes.
+(Honeycomb caps a trigger's time range at 4 times its frequency, so 5 minutes every 1 minute is
+rejected.)
 
 Recipient: none is fine for the workshop (the trigger page shows its state), or your own email.
 
@@ -84,7 +84,8 @@ average sits just above 2. A threshold of 2 would flap on healthy traffic. v2 av
 npm run prompt v2
 ```
 
-Wait three or four minutes (the 5-minute window has to fill with v2 runs), and the trigger fires.
+Wait five to seven minutes (the 5-minute window has to fill with v2 runs, and the trigger only
+checks every 2 minutes), and the trigger fires.
 Then roll back:
 
 ```bash
@@ -95,14 +96,16 @@ and watch it resolve.
 
 ## The query that proves it (green sticky note)
 
-Cost per run grouped by `gen_ai.prompt.version` (v2 slightly cheaper), **and** your trigger in
-the Triggered state after the v2 flip.
+`usd_per_1000_runs` by `gen_ai.prompt.version` (v1 and v2 within a few percent of each other, v2 with more
+model calls per run), **and** your trigger in the Triggered state after the v2 flip.
 
 ## Teaching beat
 
-- Error rate, latency and cost alerts would not have caught Module 3's break: nothing threw, every
-  request returned 200, and v2 is cheaper. The alert that works is on **behaviour**: how many
-  components the agent actually scored. That is an attribute you chose to put on your own span.
+- Error rate and latency alerts would not have caught Module 3's break: nothing threw, every
+  request returned 200. The alert that works is on **behaviour**: how many components the agent
+  actually scored. That is an attribute you chose to put on your own span.
+- Cost would not have caught it either: v2 costs about the same per run. Only the behaviour
+  attribute moved.
 - Cost is a derived column, not a metric you have to pre-aggregate: tokens are on every chat span,
   so price changes are an edit to one formula, applied to history too.
 - An SLO needs a per-event definition of "good". Here that is awkward (a final ruling legitimately
@@ -118,7 +121,8 @@ the Triggered state after the v2 flip.
   not `prompt_tokens`: see [docs/old-names.md](../docs/old-names.md)).
 - **No `gen_ai.prompt.version` on chat spans:** you are on a checkpoint before 3.
   `npm run catchup -- 4` and restart the app.
-- **Trigger never fires:** is `npm run load` running? Check `npm run prompt` says `v2`, and give it
-  the full 5-minute window.
+- **Trigger never fires:** is `npm run load` running? Check `npm run prompt` says `v2` (any app
+  restart, including `npm run catchup` and the track (a) restarts, puts it back on `v1`), and give
+  it the full window plus two minutes.
 - **Only v1 in your data:** your app died over the break; use the fallback dataset `roast-judge-0`
   for the cost query.

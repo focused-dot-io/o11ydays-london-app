@@ -24,7 +24,7 @@ This workshop uses the current names. This page maps the ones you will meet else
 | `ai.generateText`, `ai.streamText`, `ai.toolCall` (span names) and `ai.*` attributes | Vercel AI SDK's own telemetry | `chat {model}` and `execute_tool {name}` spans with `gen_ai.*` attributes (the AI SDK also emits some `gen_ai.*` alongside its own) |
 | `llm.request.type`, `llm.usage.total_tokens`, other `llm.*` | OpenLLMetry (Traceloop) | `gen_ai.operation.name`, `gen_ai.usage.input_tokens` + `output_tokens` |
 | `traceloop.*` (e.g. `traceloop.entity.name`, `traceloop.workflow.name`) | OpenLLMetry's workflow and agent naming | `gen_ai.agent.name`, `invoke_agent` spans |
-| `input_tokens`, `input_token_count`, `tool_name`, `function_name` | Coding-agent event attributes (Claude Code, Codex, Gemini CLI) | Normalised with derived columns in [telemetry/README.md](../telemetry/README.md) |
+| `input_tokens`, `input_token_count`, `tool_name`, `function_name` | Coding-agent event attributes (Claude Code, Codex, Antigravity; `function_name` is retired Gemini CLI data) | Normalised with derived columns in [telemetry/README.md](../telemetry/README.md) |
 
 ## Why this app uses the Responses API
 

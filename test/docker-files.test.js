@@ -38,7 +38,8 @@
 //     would not run), postStartCommand "bash scripts/codespace-start.sh",
 //     no docker-in-docker feature (the Codespace uses `npm run dev`, not compose).
 //  .devcontainer/on-create.sh: bash, `npm ci`, `npm i -g` (or `npm install -g`) of
-//     @anthropic-ai/claude-code, @openai/codex and @google/gemini-cli each pinned `@X.Y.Z`, and a
+//     @anthropic-ai/claude-code and @openai/codex each pinned `@X.Y.Z`, the Antigravity CLI from its
+//     official installer (https://antigravity.google/cli/install.sh, unpinnable), and a
 //     checkout of checkpoint-0 guarded by "on main" and an empty `git status --porcelain`.
 //  .nvmrc is exactly `22.22.0` (trailing newline allowed).
 
@@ -278,10 +279,12 @@ test('.devcontainer/on-create.sh: npm ci, pinned agent CLIs, guarded checkout of
     .join('\n');
   assert.match(code, /\bnpm ci\b/);
   assert.match(code, /\bnpm (i|install) (-g|--global)\b/);
-  for (const pkg of ['@anthropic-ai/claude-code', '@openai/codex', '@google/gemini-cli']) {
+  for (const pkg of ['@anthropic-ai/claude-code', '@openai/codex']) {
     const re = new RegExp(`${pkg.replace(/[/.]/g, '\\$&')}@\\d+\\.\\d+\\.\\d+(?![\\w.-])`);
     assert.match(code, re, `${pkg} must be pinned to an exact version`);
   }
+  assert.match(code, /curl -fsSL https:\/\/antigravity\.google\/cli\/install\.sh \| bash/, 'installs agy');
+  assert.doesNotMatch(code, /@google\/gemini-cli/, 'Gemini CLI no longer serves personal accounts');
   assert.match(code, /checkpoint-0/);
   assert.match(code, /git status --porcelain/);
   assert.match(code, /\bmain\b/, 'the checkout is guarded by being on main');

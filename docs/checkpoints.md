@@ -34,8 +34,10 @@ npm run catchup -- 2        # or 0, 1, 2-cut, 3, 4
 It fetches `origin`, parks any uncommitted work (including new files) on a branch called
 `my-work-<timestamp>` so nothing is lost, then checks out `checkpoint-N` fresh from `origin`.
 Gitignored files (`.env`, your coding agent's settings with keys) are never parked; they stay put.
-In the Codespace, catchup restarts the app for you. Locally, stop `npm run dev` and start it again
-(under `docker compose up` the services run with `node --watch` and reload on their own).
+If `npm run dev` is running (it writes `.dev.pid`; the Codespace starts it for you), catchup sends
+it SIGHUP so it restarts on the new code and prints `app: restarted on checkpoint-N`; otherwise it
+prints a reminder to start it. Under `docker compose up` the services run with `node --watch` and
+reload on their own. A restart puts the prompt back on `v1`.
 
 ## Checking your work: `verify` and `check-spans`
 
