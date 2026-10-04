@@ -8,7 +8,7 @@
 //  - Templates send to https://api.honeycomb.io, carry OTEL_RESOURCE_ATTRIBUTES=seat=<SEAT>,
 //    route metrics to the `agent-metrics` dataset via x-honeycomb-dataset (agents that have metrics),
 //    and keep prompt content off.
-//  - telemetry/README.md defines the four Module 1 derived columns with COALESCE.
+//  - telemetry/README.md defines the four Module 1 calculated fields with COALESCE.
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
@@ -83,7 +83,7 @@ test('track cards name the flag, attributes and queries that prove each track', 
     assert.ok(a.includes(needle), `track a should mention ${needle}`);
   }
   const b = read('tracks/b-cost-and-slo.md');
-  for (const needle of ['gen_ai.usage.input_tokens', 'gen_ai.usage.output_tokens', 'derived column', 'roastjudge.components_scored', 'gen_ai.prompt.version']) {
+  for (const needle of ['gen_ai.usage.input_tokens', 'gen_ai.usage.output_tokens', 'calculated field', 'roastjudge.components_scored', 'gen_ai.prompt.version']) {
     assert.ok(b.includes(needle), `track b should mention ${needle}`);
   }
   assert.match(b, /SLO|trigger/i);
@@ -102,7 +102,7 @@ test('tasks/act1.md is a scripted task with a read, an edit, a shell command and
   assert.ok(t.includes('replay/corpus.json') || t.includes('services/') || t.includes('src/'), 'task should point at real files in this repo');
 });
 
-test('telemetry/README.md defines the four Module 1 derived columns', () => {
+test('telemetry/README.md defines the four Module 1 calculated fields', () => {
   const r = read('telemetry/README.md');
   for (const col of ['agent.input_tokens', 'agent.output_tokens', 'agent.tool', 'agent.session']) {
     assert.ok(r.includes(col), `telemetry README should define ${col}`);

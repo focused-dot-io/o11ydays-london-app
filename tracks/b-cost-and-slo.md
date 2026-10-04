@@ -8,7 +8,7 @@ dataset already holds v1 and v2 traffic from Module 3.
 
 ## Steps
 
-### 1. A cost derived column
+### 1. A cost calculated field
 
 In Honeycomb, open your dataset `roast-judge-<seat>` → Dataset settings → Definitions → Derived
 columns → New. Name it `roastjudge.cost_usd`:
@@ -106,7 +106,7 @@ model calls per run), **and** your trigger in the Triggered state after the v2 f
   actually scored. That is an attribute you chose to put on your own span.
 - Cost would not have caught it either: v2 costs about the same per run. Only the behaviour
   attribute moved.
-- Cost is a derived column, not a metric you have to pre-aggregate: tokens are on every chat span,
+- Cost is a calculated field, not a metric you have to pre-aggregate: tokens are on every chat span,
   so price changes are an edit to one formula, applied to history too.
 - An SLO needs a per-event definition of "good". Here that is awkward (a final ruling legitimately
   scores zero components), which is why a trigger on an aggregate is the better fit. If you want an
