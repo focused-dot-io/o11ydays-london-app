@@ -43,19 +43,6 @@ Why not plain `npm test`? On the workshop branches some of the suite expects the
 (the agent spans you write in Module 2), so the full suite is red there by design. The three files
 above are the ones that check the corpus.
 
-**Codex shows `listen EPERM: operation not permitted 127.0.0.1`?** The tests start local servers,
-and Codex's sandbox has no network by default. That is not a test failure, so don't let the agent
-"fix" code for it. The template in `telemetry/codex-config.toml` already allows it; if your
-`.codex-home/config.toml` came from an older copy, add these two settings above `[otel]` and
-restart `codex` (or approve the escalation when Codex asks):
-
-```toml
-sandbox_mode = "workspace-write"
-
-[sandbox_workspace_write]
-network_access = true
-```
-
 ## What you should see in Honeycomb
 
 Your agent's events land in its own dataset (`claude-code`, `codex_cli_rs` or `gemini-cli`) and
