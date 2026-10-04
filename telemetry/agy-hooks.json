@@ -1,0 +1,31 @@
+{
+  "roast-judge-telemetry": {
+    "enabled": true,
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ../telemetry/agy-hook.mjs PostToolUse",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostInvocation": [
+      {
+        "type": "command",
+        "command": "node ../telemetry/agy-hook.mjs PostInvocation",
+        "timeout": 10
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "node ../telemetry/agy-hook.mjs Stop",
+        "timeout": 10
+      }
+    ]
+  }
+}

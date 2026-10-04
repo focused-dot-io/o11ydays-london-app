@@ -36,7 +36,7 @@ curl -s localhost:3000/judge -H 'content-type: application/json' \
 ## Before the day
 
 **The Codespace is the default.** Everything runs in a GitHub Codespace in your browser: the app,
-the replay model, Node and the three coding-agent CLIs are prebaked, the app is running when it
+the replay model, Node and the three coding-agent CLIs (Claude Code, Codex, Antigravity) are prebaked, the app is running when it
 opens, and nothing is installed on your laptop. You need a **GitHub account** (sign-in is required
 to launch a Codespace; the free hours every personal account has cover the afternoon) and a browser
 that can reach github.com. The link is on your seat card and here:
@@ -237,7 +237,7 @@ again (Docker reloads on its own). What each checkpoint contains, and how `verif
 
 ## Where things are
 
-- [`telemetry/`](telemetry/README.md): wire Claude Code, Codex or Gemini CLI to send to the workshop
+- [`telemetry/`](telemetry/README.md): wire Claude Code, Codex or Antigravity CLI to send to the workshop
   environment (Act 1), plus the derived columns that normalise them.
 - [`tasks/act1.md`](tasks/act1.md): the scripted coding-agent task for Act 1.
 - [`tracks/`](tracks/): Module 4's self-serve cards,
@@ -251,7 +251,7 @@ again (Docker reloads on its own). What each checkpoint contains, and how `verif
 
 The last instruction, on screen and on the seat card:
 
-1. Run `/logout` in your coding agent (Claude Code, Codex and Gemini CLI all have it). The agent's
+1. Run `/logout` in your coding agent (Claude Code, Codex and Antigravity CLI all have it). The agent's
    sign-in is not tied to the Codespace, so without this a signed-in agent sits in a stopped Codespace.
 2. Stop your Codespace (github.com/codespaces → … → Stop), or `Ctrl-C` the local `npm run dev`.
 

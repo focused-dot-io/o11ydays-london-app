@@ -6,7 +6,8 @@
 // ASSUMPTIONS (the implementer follows these):
 //  - Template blanks are the literal tokens `<SEAT>` and `<KEY>`; nothing else is a placeholder.
 //  - Templates send to https://api.honeycomb.io, carry OTEL_RESOURCE_ATTRIBUTES=seat=<SEAT>,
-//    route metrics to the `agent-metrics` dataset via x-honeycomb-dataset, and keep prompt content off.
+//    route metrics to the `agent-metrics` dataset via x-honeycomb-dataset (agents that have metrics),
+//    and keep prompt content off.
 //  - telemetry/README.md defines the four Module 1 derived columns with COALESCE.
 
 const { test } = require('node:test');
@@ -30,8 +31,7 @@ const DOCS = [
 ];
 const TEMPLATES = [
   'telemetry/claude-settings.local.json',
-  'telemetry/gemini-settings.json',
-  'telemetry/gemini.env',
+  'telemetry/agy.env',
   'telemetry/codex-config.toml',
   'telemetry/envrc',
 ];
@@ -125,7 +125,7 @@ test('templates: US endpoint, seat resource attribute, agent-metrics dataset, on
     assert.doesNotMatch(t, /hcaik_[A-Za-z0-9]{6,}|sk-[A-Za-z0-9]{20,}/, `${f} looks like it leaks a real key`);
   }
   // Metrics dataset header on every template that configures metrics.
-  for (const f of ['telemetry/claude-settings.local.json', 'telemetry/gemini.env', 'telemetry/codex-config.toml']) {
+  for (const f of ['telemetry/claude-settings.local.json', 'telemetry/codex-config.toml']) {
     assert.ok(read(f).includes('x-honeycomb-dataset=agent-metrics') || read(f).includes('"x-honeycomb-dataset" = "agent-metrics"'),
       `${f} must route metrics to agent-metrics`);
   }
@@ -146,15 +146,22 @@ test('Claude Code template is valid JSON with the env block the module describes
   assert.notEqual(j.env.OTEL_LOG_USER_PROMPTS, '1', 'prompt content must stay off');
 });
 
-test('Gemini template is valid JSON with telemetry on and prompts off; gemini.env carries key and seat', () => {
-  const j = JSON.parse(read('telemetry/gemini-settings.json'));
-  assert.equal(j.telemetry.enabled, true);
-  assert.equal(j.telemetry.logPrompts, false);
-  assert.match(JSON.stringify(j.telemetry), /api\.honeycomb\.io/);
-  const env = read('telemetry/gemini.env');
-  assert.match(env, /^OTEL_EXPORTER_OTLP_HEADERS=.*x-honeycomb-team=<KEY>/m);
-  assert.match(env, /^OTEL_RESOURCE_ATTRIBUTES=seat=<SEAT>/m);
-  assert.match(env, /^GEMINI_TELEMETRY_LOG_PROMPTS=false/m);
+test('Antigravity hooks template runs the repo hook on passive events only; agy.env carries key and seat', () => {
+  const j = JSON.parse(read('telemetry/agy-hooks.json'));
+  const groups = Object.values(j);
+  assert.equal(groups.length, 1);
+  const g = groups[0];
+  assert.equal(g.enabled, true);
+  const events = Object.keys(g).filter((k) => k !== 'enabled').sort();
+  assert.deepEqual(events, ['PostInvocation', 'PostToolUse', 'Stop'], 'no PreToolUse: a telemetry hook must not gate tools');
+  const commands = JSON.stringify(g).match(/"command":"[^"]+"/g);
+  assert.equal(commands.length, 3);
+  for (const c of commands) assert.match(c, /node \.\.\/telemetry\/agy-hook\.mjs (PostToolUse|PostInvocation|Stop)"/);
+  assert.ok(exists('telemetry/agy-hook.mjs'));
+  const env = read('telemetry/agy.env');
+  assert.match(env, /^OTEL_EXPORTER_OTLP_ENDPOINT=https:\/\/api\.honeycomb\.io$/m);
+  assert.match(env, /^OTEL_EXPORTER_OTLP_HEADERS=x-honeycomb-team=<KEY>$/m);
+  assert.match(env, /^OTEL_RESOURCE_ATTRIBUTES=seat=<SEAT>$/m);
 });
 
 test('Codex template has an [otel] block with prompts off and a non-statsig metrics exporter; envrc sets CODEX_HOME', () => {

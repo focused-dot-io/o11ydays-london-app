@@ -2,7 +2,7 @@
 
 // Phase 6: scripts/catchup.sh (`npm run catchup -- N`).
 // SPEC: git fetch origin, park uncommitted work on my-work-<timestamp> only if the tree is dirty, then
-// git checkout -B checkpoint-N origin/checkpoint-N. .env, .claude/settings.local.json, .gemini/.env,
+// git checkout -B checkpoint-N origin/checkpoint-N. .env, .claude/settings.local.json, .gemini/.env, .agents/,
 // .codex-home/ gitignored so keys never get parked.
 //
 // ASSUMPTIONS (beyond SPEC.md; the implementer must follow these):
@@ -167,7 +167,7 @@ test('catchup.sh is strict bash', () => {
 
 test('.gitignore keeps keys out of parked work', () => {
   const lines = fs.readFileSync(path.join(ROOT, '.gitignore'), 'utf8').split(/\r?\n/).map((l) => l.trim());
-  for (const want of ['.env', '.claude/settings.local.json', '.claude/telemetry.local.json', '.gemini/.env', '.codex-home/', '.dev.pid', '.load.pid']) {
+  for (const want of ['.env', '.claude/settings.local.json', '.claude/telemetry.local.json', '.gemini/.env', '.agents/', '.codex-home/', '.dev.pid', '.load.pid']) {
     assert.ok(lines.includes(want), `.gitignore contains ${want}`);
   }
 });
