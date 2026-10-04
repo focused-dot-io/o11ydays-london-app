@@ -1,7 +1,7 @@
 # Act 1 task: add a roast to the corpus
 
 The scripted task for Module 1. Lloyd runs it live on the big screen; you run it with your own
-coding agent (Claude Code, Codex or Gemini CLI), wired to Honeycomb from [`telemetry/`](../telemetry/README.md).
+coding agent (Claude Code, Codex or Antigravity CLI), wired to Honeycomb from [`telemetry/`](../telemetry/README.md).
 
 It is chosen for a **varied tool mix**: the agent has to read files, edit one, run shell commands
 and react to a failing test run. That gives the Module 1 queries something to show. It takes an
@@ -45,8 +45,8 @@ above are the ones that check the corpus.
 
 ## What you should see in Honeycomb
 
-Your agent's events land in its own dataset (`claude-code`, `codex_cli_rs` or `gemini-cli`) and
-its metrics in `agent-metrics`. Module 1's tool-mix query, environment-wide, last 15 minutes.
+Your agent's events land in its own dataset (`claude-code`, `codex_cli_rs` or `antigravity-cli`) and
+its metrics in `agent-metrics` (Antigravity sends no metrics: its events come from hooks). Module 1's tool-mix query, environment-wide, last 15 minutes.
 Paste it into the query builder, with the seat number from your seat card in place of
 `<your seat>`:
 
@@ -64,8 +64,12 @@ The value is a string, e.g. `"value": "7"`. Every agent's events carry `seat` (i
 
 Metrics share your agent's `service.name`: see the `agent-metrics` note in [telemetry/README.md](../telemetry/README.md#which-agent-which-files).
 
-You should see your agent's read tools (`Read`, `read_file`, ...), an edit or write tool, and the
-shell tool (`Bash`, `run_shell_command`, `exec_command`), with the shell count at two or more: the
-failing test run and the passing one. Codex reads files through its shell, so it shows only
-`exec_command` (and `exec`) and `apply_patch`. `agent.tool` is a derived column defined in
+You should see your agent's read tools (`Read`, `view_file`, ...), an edit or write tool (`Edit`,
+`replace_file_content`, `apply_patch`, ...), and the shell tool (`Bash`, `run_command`,
+`exec_command`), with the shell count at two or more: the failing test run and the passing one.
+Codex reads files through its shell, so it shows only `exec_command` (and `exec`) and
+`apply_patch`. Antigravity also sends one `agy.invocation` event per loop pass and one `agy.stop`
+per turn; they have no tool, so they show as a blank `agent.tool` row. In rehearsal, an Antigravity
+run (`gemini-3.8-flash-high`) took about 8 minutes: 20 `run_command`, 13 `view_file`, 2
+`replace_file_content`. `agent.tool` is a derived column defined in
 [telemetry/README.md](../telemetry/README.md).

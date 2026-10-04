@@ -7,16 +7,17 @@ nothing. One template per agent, with exactly two blanks to fill in from your se
 - `<SEAT>`: your seat number (e.g. `17`);
 - `<KEY>`: the workshop ingest key.
 
-Every filled-in file is **gitignored** (`.claude/telemetry.local.json`, `.gemini/.env`,
+Every filled-in file is **gitignored** (`.claude/telemetry.local.json`, `.agents/`,
 `.codex-home/`), so your key never gets committed and `npm run catchup` never parks it.
 
-All three send to `https://api.honeycomb.io`, keep their default `service.name` (so each agent
-lands in its own dataset), add `seat=<seat>` through `OTEL_RESOURCE_ATTRIBUTES`, send their metrics
-to one shared **`agent-metrics`** dataset via the `x-honeycomb-dataset` header, and keep prompt
-content off.
+All three send to `https://api.honeycomb.io`, each lands in its own dataset (named by its
+`service.name`), add `seat=<seat>` through `OTEL_RESOURCE_ATTRIBUTES` and keep prompt content off.
+Claude Code and Codex also send metrics to one shared **`agent-metrics`** dataset via the
+`x-honeycomb-dataset` header. Antigravity has no telemetry of its own: a hook script in this repo
+sends its events (see below), and it has no metrics or token counts to send.
 
-**Your sign-in email is visible to the room.** `user.email` is the one attribute all three agents
-attach, and it is the join key for the unified view. Wire your agent on your own machine with your
+**Your sign-in email is visible to the room.** Claude Code and Codex attach `user.email`; the
+Antigravity hook does not, so filter on `seat` (which every agent carries) to find yourself. Wire your agent on your own machine with your
 own sign-in only.
 
 ## Which agent, which files
@@ -25,15 +26,16 @@ own sign-in only.
 |---|---|---|---|---|
 | Claude Code | `claude-settings.local.json` | `.claude/telemetry.local.json`, then start with `claude --settings .claude/telemetry.local.json` | `claude-code` | Cost is informational only on Pro/Max. Traces are beta (`CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1`). Metrics every 10 s instead of 60 s |
 | Codex CLI | `codex-config.toml` + `envrc` | `.codex-home/config.toml`; `export CODEX_HOME=$PWD/.codex-home` (or copy `envrc` to `.envrc` for direnv) | `codex_cli_rs` (interactive; see the Codex notes below for `codex exec`) | Metrics overridden from the `statsig` default. Cost only with an API key. Tool arguments and output previews are exported even with prompt logging off |
-| Gemini CLI | `gemini-settings.json` + `gemini.env` | `.gemini/settings.json` and `.gemini/.env` | `gemini-cli` | `logPrompts` defaults to **true**; the templates turn it off. `user.email` only when signed in with a Google account |
+| Antigravity CLI (`agy`) | `agy-hooks.json` + `agy.env` | `.agents/hooks.json` and `.agents/agy.env` | `antigravity-cli` | Events from hooks, via `telemetry/agy-hook.mjs`: one span per tool call, loop pass and turn end. No tokens, no metrics, no `user.email`. Never sends prompts, tool arguments or tool output |
 
-Metrics from every agent land in one shared dataset, `agent-metrics`, but keep the agent's own
+Metrics from Claude Code and Codex land in one shared dataset, `agent-metrics`, but keep the agent's own
 `service.name` (the same one as its events). So grouping by `service.name` merges an agent's
 events and metrics. To see metrics on their own, choose the `agent-metrics` dataset, then group by
 `service.name` to compare agents.
 
-No supported agent (or a work-account agent on a locked-down laptop)? Use **Gemini CLI on the free
-tier** with a personal Google account; it is preinstalled in the Codespace.
+No supported agent (or a work-account agent on a locked-down laptop)? Use **Antigravity CLI on the
+free tier** with a personal Google account; it is preinstalled in the Codespace. (It replaced
+Gemini CLI, which stopped serving personal Google accounts on 18 June 2026.)
 
 ### Claude Code
 
@@ -76,19 +78,26 @@ a separate session history. In the Codespace, use `codex login --device-auth`. T
 sees this home if the editor was launched from that shell (`code .`), so use the CLI today.
 (Docs: <https://developers.openai.com/codex/config-advanced>, the `[otel]` section.)
 
-### Gemini CLI
+### Antigravity CLI (agy)
+
+Antigravity has no OpenTelemetry exporter (it is a requested feature,
+<https://github.com/google-antigravity/antigravity-cli/issues/366>), but it runs **hooks** from the
+workspace's `.agents/hooks.json`. The template registers `telemetry/agy-hook.mjs` for three events
+that only observe (`PostToolUse`, `PostInvocation`, `Stop`); the script sends one span per event to
+Honeycomb, with every span of a conversation in one trace.
 
 ```bash
-mkdir -p .gemini
-cp telemetry/gemini-settings.json .gemini/settings.json
-cp telemetry/gemini.env .gemini/.env      # replace <KEY> (twice) and <SEAT>
-gemini
+mkdir -p .agents
+cp telemetry/agy-hooks.json .agents/hooks.json
+cp telemetry/agy.env .agents/agy.env      # replace <KEY> and <SEAT>
+agy
 ```
 
-Gemini CLI reads `.gemini/settings.json` and `.gemini/.env` from the workspace only once you
-**trust the folder** (it asks on first start). `otlpProtocol: "http"` sends OTLP/JSON to
-`/v1/traces`, `/v1/logs` and `/v1/metrics` under the endpoint; the headers come from `.gemini/.env`.
-(Docs: <https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/telemetry.md>.)
+agy loads workspace hooks only once you **trust the folder** (it asks on first start), and reads
+`hooks.json` at startup, so restart `agy` after changing it. In the Codespace, `agy` prints a
+sign-in URL to open in your own browser. The span attributes are `tool_name` (on `PostToolUse`),
+`conversation.id`, `model`, `agy.step`, `agy.invocation`, `agy.termination_reason` (on `Stop`),
+`error` and `error.message`. Not `user.email`, and no token counts: the hook payloads carry neither.
 
 ## The unified view: derived columns
 
@@ -96,24 +105,28 @@ The three agents name the same things differently. Four **environment-wide** der
 (Environment settings → Derived columns) `COALESCE` them into one vocabulary, so one query covers
 every agent in the room:
 
-| Derived column | Claude Code | Codex | Gemini CLI |
+| Derived column | Claude Code | Codex | Antigravity CLI |
 |---|---|---|---|
-| `agent.input_tokens` | `input_tokens` (on `api_request`) | `input_token_count` (on `codex.sse_event`) | `input_token_count` (on `gemini_cli.api_response`) |
-| `agent.output_tokens` | `output_tokens` | `output_token_count` | `output_token_count` |
-| `agent.tool` | `tool_name` | `tool_name` | `function_name` |
-| `agent.session` | `session.id` | `conversation.id` | `session.id` |
+| `agent.input_tokens` | `input_tokens` (on `api_request`) | `input_token_count` (on `codex.sse_event`) | (none) |
+| `agent.output_tokens` | `output_tokens` | `output_token_count` | (none) |
+| `agent.tool` | `tool_name` | `tool_name` | `tool_name` (on `agy.tool_result`) |
+| `agent.session` | `session.id` | `conversation.id` | `conversation.id` |
 
 Definitions to paste:
 
 ```
 agent.input_tokens    COALESCE($input_tokens, $input_token_count)
 agent.output_tokens   COALESCE($output_tokens, $output_token_count)
-agent.tool            COALESCE($tool_name, $function_name)
+agent.tool            $tool_name
 agent.session         COALESCE($session.id, $conversation.id)
 ```
 
-(Codex and Gemini share `input_token_count` / `output_token_count`, and Claude Code and Codex share
-`tool_name`, so one `COALESCE` of two names covers all three.)
+(Codex and Claude Code share `tool_name`, and the Antigravity hook emits `tool_name` and
+`conversation.id` on purpose, so `agent.tool` needs no `COALESCE` and the others need no new arms.
+`COALESCE` rejects a column that does not exist yet in the environment, so the older
+`COALESCE($tool_name, $function_name)` (`function_name` was Gemini CLI's) cannot be created now that
+nothing sends `function_name`. Antigravity has no token counts, so it is missing from the token
+queries below.)
 
 Module 1's queries, environment-wide. Paste each into the query builder. They have no
 `time_range`: set the time range back far enough to include the seeded runs from before the day.
@@ -162,8 +175,8 @@ Module 1's queries, environment-wide. Paste each into the query builder. They ha
    }
    ```
 
-Filter to yourself with `user.email = <your sign-in email>`, or `seat = <your seat>` (Gemini on an
-API key has no email).
+Filter to yourself with `seat = <your seat>`, or `user.email = <your sign-in email>` (Claude Code
+and Codex only).
 
 ## Codex rehearsal notes (CLI 0.160.0)
 
@@ -200,9 +213,19 @@ Codex reads files with its shell tool, so its tool mix is `exec_command` (and `e
 shell where `CODEX_HOME=$PWD/.codex-home` is exported, or you sign out of your global Codex home
 instead.
 
+## Antigravity rehearsal notes (agy 1.2.16)
+
+`agy` runs hook commands from the `.agents/` directory, which is why the template says
+`node ../telemetry/agy-hook.mjs`. A hook that fails is shown to the model, and in rehearsal the
+agent left the Act 1 task to "fix" it (it copied the hook script into `.agents/`). So if the
+hooks error, quit `agy`, fix `.agents/hooks.json`, and start again rather than letting the agent
+repair it. A clean run sent 74 events: 37 `agy.invocation`, 35 `agy.tool_result`, 2 `agy.stop`.
+Set `AGY_HOOK_DEBUG=1` in `.agents/agy.env` to append every raw hook payload to
+`.agents/agy-hook-debug.jsonl` (local only; the payloads include tool arguments).
+
 ## At the end of the day
 
-Run `/logout` in the agent you wired (Claude Code, Codex and Gemini CLI all have it), then stop your
+Run `/logout` in the agent you wired (Claude Code, Codex and Antigravity CLI all have it), then stop your
 Codespace. The agent's session is not tied to the Codespace's lifecycle, so a signed-in agent would
 otherwise sit in a stopped Codespace.
 
@@ -212,7 +235,6 @@ Drafted from each agent's docs and source; they must be **cold-tested at the dry
 TODO), for each agent: the events land in the right dataset with `seat` on them, metrics land in
 `agent-metrics`, no prompt text appears, and the derived columns resolve across all three. In
 particular: Claude Code's `api_request` field names are not all documented (confirm against real
-data); Claude Code honouring `--settings .claude/telemetry.local.json` for telemetry; Gemini CLI loading
-`.gemini/.env` and applying `OTEL_RESOURCE_ATTRIBUTES`; Codex picking up `OTEL_RESOURCE_ATTRIBUTES`
+data); Claude Code honouring `--settings .claude/telemetry.local.json` for telemetry; Codex picking up `OTEL_RESOURCE_ATTRIBUTES`
 for its resource; and a fresh `CODEX_HOME` login on a ChatGPT plan, including device-code login in
 the Codespace.
