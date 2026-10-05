@@ -115,7 +115,7 @@ them into one vocabulary, so one query covers every agent in the room:
 
 | Calculated field | Claude Code | Codex | Antigravity CLI |
 |---|---|---|---|
-| `agent.input_tokens` | `input_tokens` (on `api_request`) | `input_token_count` (on `codex.sse_event`) | (none) |
+| `agent.input_tokens` | `input_tokens` + `cache_read_tokens` + `cache_creation_tokens` (on `api_request`) | `input_token_count` (on `codex.sse_event`) | (none) |
 | `agent.output_tokens` | `output_tokens` | `output_token_count` | (none) |
 | `agent.tool` | `tool_name` | `tool_name` | `tool_name` (on `agy.tool_result`) |
 | `agent.session` | `session.id` | `conversation.id` | `conversation.id` |
@@ -123,7 +123,7 @@ them into one vocabulary, so one query covers every agent in the room:
 Definitions to paste:
 
 ```
-agent.input_tokens    COALESCE($input_tokens, INT($input_token_count))
+agent.input_tokens    IF(EXISTS($input_tokens), SUM($input_tokens, COALESCE($cache_read_tokens, 0), COALESCE($cache_creation_tokens, 0)), INT($input_token_count))
 agent.output_tokens   COALESCE($output_tokens, INT($output_token_count))
 agent.tool            $tool_name
 agent.session         COALESCE($session.id, $conversation.id)
@@ -134,7 +134,10 @@ agent.session         COALESCE($session.id, $conversation.id)
 `COALESCE` rejects a column that does not exist yet in the environment, so the older
 `COALESCE($tool_name, $function_name)` (`function_name` was Gemini CLI's) cannot be created now that
 nothing sends `function_name`. Codex sends `input_token_count` and `output_token_count` as strings,
-so `INT()` turns them into numbers `SUM` can add. Antigravity has no token counts, so it is missing from the token
+so `INT()` turns them into numbers `SUM` can add. Claude Code's `input_tokens` counts only the uncached part
+of the prompt (a long session is almost all cache reads), while Codex's `input_token_count` already
+includes cached input, so `agent.input_tokens` adds Claude's two cache fields back in; without them
+Claude looks almost free on input. Antigravity has no token counts, so it is missing from the token
 queries below.)
 
 Module 1's queries, environment-wide. Paste each into the query builder. They have no
