@@ -110,7 +110,7 @@ Your seat card has your seat number `N` and the workshop ingest key `K`.
    ```
 
 4. **Find it.** Click the `Open:` link that `first-trace` printed; it goes straight to your trace in
-   the workshop environment (`https://ui.honeycomb.io/focusedlabs-4f/environments/o11ydays-london`,
+   the workshop environment (`https://ui.honeycomb.io/hny-focused/environments/o11ydays-london`,
    dataset **`roast-judge-<seat>`**). If the link doesn't work, open that environment, choose your
    dataset (e.g. `roast-judge-17`) and search for the trace ID. If your URL shows `ui.eu1`, you are in
    the EU region and will see nothing: the workshop team is in the US region. The waterfall shows a
@@ -239,7 +239,7 @@ judge back on prompt `v1`, so re-run `npm run prompt v2` if you were mid-flip. W
 | `OPENAI_API_KEY` | (unset) | Only used when `ROASTJUDGE_MODEL=live` |
 | `LOAD_INTERVAL_MS` | `4000` | Pause between load-generator runs |
 | `REPLAY_FAIL_EVERY` | `25` | Replay fails every Nth call; `0` turns it off |
-| `HONEYCOMB_TEAM_SLUG`, `HONEYCOMB_ENV_SLUG` | `focusedlabs-4f`, `o11ydays-london` | The shared workshop team and environment; `first-trace` builds its link from them. Not secrets, same for every seat |
+| `HONEYCOMB_TEAM_SLUG`, `HONEYCOMB_ENV_SLUG` | `hny-focused`, `o11ydays-london` | The shared workshop team and environment; `first-trace` builds its link from them. Not secrets, same for every seat |
 | `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT` | `false` | `true` puts prompts and completions on the chat spans (Module 4 track a) |
 | `ROASTJUDGE_URL` | `http://localhost:3000` | Where `first-trace`, `load` and `prompt` send requests |
 
