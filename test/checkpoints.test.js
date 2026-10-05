@@ -39,6 +39,7 @@
 //    0 on 3/4.
 
 const { test, before, after } = require('node:test');
+const { mainOnly } = require('./helpers/main-only.js');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -71,7 +72,7 @@ function summarise(r) {
 // ---------------------------------------------------------------------------------------------
 // Static checks
 
-test('checkpoints/: exactly the six overlay directories (main has none)', () => {
+test('checkpoints/: exactly the six overlay directories (main has none)', mainOnly, () => {
   assert.ok(fs.existsSync(ov.CHECKPOINTS_DIR), 'checkpoints/ exists');
   const dirs = fs
     .readdirSync(ov.CHECKPOINTS_DIR, { withFileTypes: true })
@@ -83,14 +84,14 @@ test('checkpoints/: exactly the six overlay directories (main has none)', () => 
 });
 
 for (const name of NAMES) {
-  test(`${name}: overlay holds exactly ${EXPECTED_FILES[name].join(', ')}; CHECKPOINT is "${name}\\n"`, () => {
+  test(`${name}: overlay holds exactly ${EXPECTED_FILES[name].join(', ')}; CHECKPOINT is "${name}\\n"`, mainOnly, () => {
     requireOverlay(name);
     assert.deepEqual(ov.listOverlayFiles(name), [...EXPECTED_FILES[name]].sort());
     assert.equal(ov.readOverlay(name, 'CHECKPOINT'), `${name}\n`);
   });
 }
 
-test('checkpoint-0 and checkpoint-1 overlay files are byte-identical to checkpoint-2 (except CHECKPOINT)', () => {
+test('checkpoint-0 and checkpoint-1 overlay files are byte-identical to checkpoint-2 (except CHECKPOINT)', mainOnly, () => {
   for (const name of ['checkpoint-0', 'checkpoint-1']) {
     for (const rel of ['src/agent.js', 'src/telemetry.js']) {
       requireOverlay(name, rel);
@@ -103,7 +104,7 @@ test('checkpoint-0 and checkpoint-1 overlay files are byte-identical to checkpoi
   }
 });
 
-test('checkpoint-3 and checkpoint-4 ship identical src/agent.js', () => {
+test('checkpoint-3 and checkpoint-4 ship identical src/agent.js', mainOnly, () => {
   requireOverlay('checkpoint-3', 'src/agent.js');
   requireOverlay('checkpoint-4', 'src/agent.js');
   assert.ok(
@@ -113,7 +114,7 @@ test('checkpoint-3 and checkpoint-4 ship identical src/agent.js', () => {
   );
 });
 
-test('every overlay .js file parses (node --check)', () => {
+test('every overlay .js file parses (node --check)', mainOnly, () => {
   let checked = 0;
   for (const name of NAMES) {
     requireOverlay(name);
@@ -126,7 +127,7 @@ test('every overlay .js file parses (node --check)', () => {
   assert.equal(checked, 3 * 2 + 3 * 1);
 });
 
-test('main carries no TODO(module- markers in src/agent.js or src/telemetry.js', () => {
+test('main carries no TODO(module- markers in src/agent.js or src/telemetry.js', mainOnly, () => {
   for (const rel of ov.OVERLAY_SOURCE_FILES) assert.ok(!mainSrc(rel).includes('TODO(module-'), rel);
 });
 
@@ -136,7 +137,7 @@ test('main carries no TODO(module- markers in src/agent.js or src/telemetry.js',
 const norm = (l) => l.trim().replace(/^\/\/\s?/, '').trim();
 
 for (const name of NAMES) {
-  test(`${name}: diff vs main is non-empty and every hunk carries TODO(module-`, () => {
+  test(`${name}: diff vs main is non-empty and every hunk carries TODO(module-`, mainOnly, () => {
     requireOverlay(name);
     const files = ov.listOverlayFiles(name).filter((f) => ov.OVERLAY_SOURCE_FILES.includes(f));
     assert.ok(files.length > 0, 'the overlay changes at least one source file');
@@ -165,7 +166,7 @@ for (const name of NAMES) {
 // ---------------------------------------------------------------------------------------------
 // Shape of the blanks and the hints
 
-test('checkpoint-0/1/2 telemetry.js: the openai one-liner is a TODO(module-2) comment in the same place', () => {
+test('checkpoint-0/1/2 telemetry.js: the openai one-liner is a TODO(module-2) comment in the same place', mainOnly, () => {
   requireOverlay('checkpoint-2', 'src/telemetry.js');
   const src = ov.readOverlay('checkpoint-2', 'src/telemetry.js');
   assert.ok(!ov.codeLines(src).some((l) => l.includes('new OpenAIInstrumentation(')), 'no `new OpenAIInstrumentation(` in code');
@@ -177,7 +178,7 @@ test('checkpoint-0/1/2 telemetry.js: the openai one-liner is a TODO(module-2) co
   assert.equal(lines[at - 1], mainLines[mainAt - 1], 'the TODO sits right after the same line as the one-liner on main');
 });
 
-test('checkpoint-0/1/2 agent.js: withAgentSpan and withToolSpan are TODO(module-2) pass-throughs', () => {
+test('checkpoint-0/1/2 agent.js: withAgentSpan and withToolSpan are TODO(module-2) pass-throughs', mainOnly, () => {
   requireOverlay('checkpoint-2', 'src/agent.js');
   const src = ov.readOverlay('checkpoint-2', 'src/agent.js');
   for (const fn of ['withAgentSpan', 'withToolSpan']) {
@@ -188,14 +189,14 @@ test('checkpoint-0/1/2 agent.js: withAgentSpan and withToolSpan are TODO(module-
   assert.ok(!ov.codeLines(src).some((l) => l.includes('startActiveSpan')), 'no span is started anywhere');
 });
 
-test('checkpoint-2 agent.js: the TODO blocks hint at invoke_agent and execute_tool', () => {
+test('checkpoint-2 agent.js: the TODO blocks hint at invoke_agent and execute_tool', mainOnly, () => {
   requireOverlay('checkpoint-2', 'src/agent.js');
   const hints = ov.todoBlocks(ov.readOverlay('checkpoint-2', 'src/agent.js')).join('\n');
   assert.match(hints, /invoke_agent/);
   assert.match(hints, /execute_tool/);
 });
 
-test('checkpoint-2-cut agent.js: invoke_agent filled (operation + agent name only), execute_tool blank', () => {
+test('checkpoint-2-cut agent.js: invoke_agent filled (operation + agent name only), execute_tool blank', mainOnly, () => {
   requireOverlay('checkpoint-2-cut', 'src/agent.js');
   const src = ov.readOverlay('checkpoint-2-cut', 'src/agent.js');
   const agentBody = ov.functionBody(src, 'withAgentSpan');
@@ -213,7 +214,7 @@ test('checkpoint-2-cut agent.js: invoke_agent filled (operation + agent name onl
   assert.ok(toolBody.includes('TODO(module-2)'));
 });
 
-test('checkpoint-3/4 agent.js: Module 2 + 3 present, conversation.id is a TODO(module-4c)', () => {
+test('checkpoint-3/4 agent.js: Module 2 + 3 present, conversation.id is a TODO(module-4c)', mainOnly, () => {
   requireOverlay('checkpoint-3', 'src/agent.js');
   const src = ov.readOverlay('checkpoint-3', 'src/agent.js');
   const code = ov.codeLines(src).join('\n');
@@ -251,7 +252,7 @@ before(async () => {
 after(() => copies.forEach(removeCopy));
 
 for (const name of NAMES) {
-  test(`${name}: verify (reading the overlay's CHECKPOINT) PASSes`, () => {
+  test(`${name}: verify (reading the overlay's CHECKPOINT) PASSes`, mainOnly, () => {
     requireOverlay(name);
     const r = results[name].verify;
     assert.equal(r.status, 0, r.info);
@@ -259,7 +260,7 @@ for (const name of NAMES) {
   });
 
   const fails = FAILS_CHECK_SPANS.has(name);
-  test(`${name}: check-spans exits ${fails ? 1 : 0}`, () => {
+  test(`${name}: check-spans exits ${fails ? 1 : 0}`, mainOnly, () => {
     requireOverlay(name);
     const r = results[name].checkSpans;
     assert.equal(r.status, fails ? 1 : 0, r.info);
@@ -276,7 +277,7 @@ for (const name of NAMES) {
   });
 }
 
-test('discrimination: the checkpoint-4 tree fails `verify main` (no conversation.id)', () => {
+test('discrimination: the checkpoint-4 tree fails `verify main` (no conversation.id)', mainOnly, () => {
   requireOverlay('checkpoint-4');
   const r = results['checkpoint-4'].cross;
   assert.equal(r.status, 1, r.info);
@@ -284,7 +285,7 @@ test('discrimination: the checkpoint-4 tree fails `verify main` (no conversation
   assert.match(r.stdout, /conversation\.id/, r.info);
 });
 
-test('discrimination: the checkpoint-2-cut tree fails `verify checkpoint-3`', () => {
+test('discrimination: the checkpoint-2-cut tree fails `verify checkpoint-3`', mainOnly, () => {
   requireOverlay('checkpoint-2-cut');
   const r = results['checkpoint-2-cut'].cross;
   assert.equal(r.status, 1, r.info);

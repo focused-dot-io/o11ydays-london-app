@@ -24,6 +24,7 @@
 //  - GET /admin/prompt reflects the runtime switch; tests restore v1 at the end.
 
 const { test, before, after } = require('node:test');
+const { mainOnly } = require('./helpers/main-only.js');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -138,7 +139,7 @@ test('server: GET /healthz -> 200 { ok: true } with an x-trace-id header', async
 
 // ------------------------------------------------------------------ 2 + 3. judge and the Module 2 trace
 
-test('server: POST /judge returns the verdict, and the trace has the Module 2 shape', async () => {
+test('server: POST /judge returns the verdict, and the trace has the Module 2 shape', mainOnly, async () => {
   const item = corpus[0];
   const res = await h.judge(item.text);
   assertOkJudgeBody(res);
@@ -246,7 +247,7 @@ test('server: POST /judge without text -> 400 (with x-trace-id)', async () => {
 
 // ------------------------------------------------------------------ 4. forced model failure
 
-test('server: ?fail=model -> 502 model_error; chat span and invoke_agent are ERROR / InternalServerError', async () => {
+test('server: ?fail=model -> 502 model_error; chat span and invoke_agent are ERROR / InternalServerError', mainOnly, async () => {
   const res = await h.judge(corpus[3].text, { query: { fail: 'model' } });
   assert.equal(res.status, 502, JSON.stringify(res.body));
   assert.equal(res.body.error, 'model_error');
@@ -271,7 +272,7 @@ test('server: ?fail=model -> 502 model_error; chat span and invoke_agent are ERR
 
 // ------------------------------------------------------------------ 5. forced tool failure
 
-test('server: ?fail=tool -> 200 verdict; execute_tool lookup_pub is ERROR, invoke_agent is not', async () => {
+test('server: ?fail=tool -> 200 verdict; execute_tool lookup_pub is ERROR, invoke_agent is not', mainOnly, async () => {
   const item = corpus[0];
   const res = await h.judge(item.text, { query: { fail: 'tool' } });
   assertOkJudgeBody(res);
@@ -291,7 +292,7 @@ test('server: ?fail=tool -> 200 verdict; execute_tool lookup_pub is ERROR, invok
 
 // ------------------------------------------------------------------ 6. prompt switch
 
-test('server: /admin/prompt switches v1 -> v2 at runtime; v2 stamps every span and scores less', async () => {
+test('server: /admin/prompt switches v1 -> v2 at runtime; v2 stamps every span and scores less', mainOnly, async () => {
   try {
     const g = await h.getPrompt();
     assert.equal(g.status, 200);
@@ -328,7 +329,7 @@ test('server: /admin/prompt switches v1 -> v2 at runtime; v2 stamps every span a
 
 // ------------------------------------------------------------------ 7. three turns
 
-test('server: judge -> appeal -> final share one conversation_id across three traces', async () => {
+test('server: judge -> appeal -> final share one conversation_id across three traces', mainOnly, async () => {
   const item = corpus[0];
   const t1 = await h.judge(item.text);
   assertOkJudgeBody(t1);

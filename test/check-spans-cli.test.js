@@ -17,6 +17,7 @@
 //  - The checkpoint-2 tree is simulated with test/helpers/blank-spans.js (see its contract).
 
 const { test, after } = require('node:test');
+const { mainOnly } = require('./helpers/main-only.js');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -39,7 +40,7 @@ function assertNoCrash(r) {
   assert.ok(!hasStackTrace(r.stderr), `no stack trace on stderr\n${r.describe()}`);
 }
 
-test('check-spans: PASS on main', () => {
+test('check-spans: PASS on main', mainOnly, () => {
   const r = runNode(ROOT, CHECK_SPANS);
   assert.equal(r.status, 0, r.describe());
   assert.equal(r.lines[0], HEADER, r.describe());
@@ -48,7 +49,7 @@ test('check-spans: PASS on main', () => {
   assertNoCrash(r);
 });
 
-test('check-spans: checkpoint-2 tree (openai line + both span wrappers blank) -> FAIL listing the missing spans', () => {
+test('check-spans: checkpoint-2 tree (openai line + both span wrappers blank) -> FAIL listing the missing spans', mainOnly, () => {
   const dir = copy();
   blank.blankOpenAI(dir);
   blank.blankAgentSpan(dir);
@@ -70,7 +71,7 @@ test('check-spans: checkpoint-2 tree (openai line + both span wrappers blank) ->
   assertNoCrash(v);
 });
 
-test('check-spans: only the span wrappers blank (openai on) -> FAIL on invoke_agent, chat not missing', () => {
+test('check-spans: only the span wrappers blank (openai on) -> FAIL on invoke_agent, chat not missing', mainOnly, () => {
   const dir = copy();
   blank.blankAgentSpan(dir);
   blank.blankToolSpan(dir);
@@ -84,7 +85,7 @@ test('check-spans: only the span wrappers blank (openai on) -> FAIL on invoke_ag
   assertNoCrash(r);
 });
 
-test('check-spans: ignores CHECKPOINT (always the module-2 set)', () => {
+test('check-spans: ignores CHECKPOINT (always the module-2 set)', mainOnly, () => {
   const dir = copy();
   fs.writeFileSync(path.join(dir, 'CHECKPOINT'), 'checkpoint-0\n');
   const r = runNode(dir, CHECK_SPANS);
@@ -92,7 +93,7 @@ test('check-spans: ignores CHECKPOINT (always the module-2 set)', () => {
   assert.ok(r.last.startsWith('PASS'), r.describe());
 });
 
-test('check-spans: unique but incorrect tool-call IDs fail model correlation', () => {
+test('check-spans: unique but incorrect tool-call IDs fail model correlation', mainOnly, () => {
   const dir = copy();
   const file = path.join(dir, 'src', 'agent.js');
   const original = fs.readFileSync(file, 'utf8');

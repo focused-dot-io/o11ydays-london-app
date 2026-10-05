@@ -31,6 +31,7 @@
 //   only then). With capture off the chat span carries NO gen_ai.input.messages / output.messages.
 
 const { test } = require('node:test');
+const { mainOnly } = require('./helpers/main-only.js');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
@@ -234,7 +235,7 @@ function chatSpanOf(res) {
   return { outcome, chat: chats[0], spans };
 }
 
-test('openai instrumentation produces a Responses-API chat span against replay (content off)', () => {
+test('openai instrumentation produces a Responses-API chat span against replay (content off)', mainOnly, () => {
   const res = run(openaiScript(), { ROASTJUDGE_EXPORTER: 'memory' });
   assert.equal(res.status, 0, res.info);
   const { outcome, chat } = chatSpanOf(res);
@@ -254,7 +255,7 @@ test('openai instrumentation produces a Responses-API chat span against replay (
   assert.equal(a['gen_ai.output.messages'], undefined, 'no content when capture is off');
 });
 
-test('OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=true puts messages on the chat span', () => {
+test('OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=true puts messages on the chat span', mainOnly, () => {
   const res = run(openaiScript(), {
     ROASTJUDGE_EXPORTER: 'memory',
     OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT: 'true',
@@ -271,7 +272,7 @@ test('OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=true puts messages on t
   assert.doesNotThrow(() => JSON.parse(a['gen_ai.output.messages']));
 });
 
-test('a forced replay failure marks the chat span ERROR with error.type InternalServerError', () => {
+test('a forced replay failure marks the chat span ERROR with error.type InternalServerError', mainOnly, () => {
   const res = run(openaiScript({ fail: true }), { ROASTJUDGE_EXPORTER: 'memory' });
   assert.equal(res.status, 0, res.info);
   const { outcome, chat } = chatSpanOf(res);

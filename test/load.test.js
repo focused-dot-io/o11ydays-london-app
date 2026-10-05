@@ -23,6 +23,7 @@
 //    message mentioning the URL or "npm run dev".
 
 const { test, before, after } = require('node:test');
+const { mainOnly } = require('./helpers/main-only.js');
 const assert = require('node:assert/strict');
 const { createHarness, freePort } = require('./helpers/app-harness.js');
 const { createFakeJudge } = require('./helpers/fake-judge.js');
@@ -53,7 +54,7 @@ function runPattern(requests) {
   return pattern;
 }
 
-test('load --once: one judge run against the real app, exit 0, prints a real trace id', async () => {
+test('load --once: one judge run against the real app, exit 0, prints a real trace id', mainOnly, async () => {
   await h.resetSpans();
   const res = await runNode(['scripts/load.mjs', '--once'], { env: { ROASTJUDGE_URL: h.appUrl } });
   assert.equal(res.status, 0, res.info);
