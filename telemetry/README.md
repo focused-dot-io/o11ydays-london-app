@@ -73,9 +73,17 @@ codex login                                              # once: the fresh home 
 codex
 ```
 
+In the Codespace, two of those lines change:
+
+```bash
+# The container cannot create the namespaces Codex's Linux sandbox needs; the Codespace is the sandbox.
+sed -i 's/^sandbox_mode = .*/sandbox_mode = "danger-full-access"/' .codex-home/config.toml
+codex login --device-auth    # prints a URL and a one-time code for your own browser; nothing opens here
+```
+
 direnv users: `cp telemetry/envrc .envrc`, fill in the seat, `direnv allow`. A fresh home also means
-a separate session history. In the Codespace, use `codex login --device-auth`. The IDE extension only
-sees this home if the editor was launched from that shell (`code .`), so use the CLI today.
+a separate session history. The IDE extension only sees this home if the editor was launched from
+that shell (`code .`), so use the CLI today.
 (Docs: <https://developers.openai.com/codex/config-advanced>, the `[otel]` section.)
 
 ### Antigravity CLI (agy)
@@ -227,10 +235,25 @@ The Act 1 tests, `npm run check-spans` and `npm run verify` open listeners on 12
 default workspace-write sandbox blocks them (`listen EPERM`), so the template sets
 `sandbox_mode = "workspace-write"` with `[sandbox_workspace_write] network_access = true`. With
 that, plain `codex exec` or `codex` runs all three without an escalation prompt (tested on macOS).
-Inside a container, Codex's Linux sandbox (bubblewrap) may not be able to create namespaces at all
-(`bwrap: No permissions to create a new namespace`), which fails every sandboxed command. If that
-happens in the Codespace, start Codex with `codex --sandbox danger-full-access`: the Codespace is
-the sandbox.
+
+**In the Codespace the sandbox does not work at all.** Codex's Linux sandbox is bubblewrap, which
+needs an unprivileged user namespace, and the Codespace container forbids them (`unshare -Ur`
+fails with `Operation not permitted`; seccomp is on and the process holds no capabilities). So
+every sandboxed command, down to `codex sandbox -- echo hello`, fails with
+`bwrap: No permissions to create a new namespace`, before `listen EPERM` could even come up.
+Codex does not fall back: `codex exec` warns that its "Linux sandbox uses bubblewrap and needs
+access to create user namespaces", runs the command anyway, gets the `bwrap` error back as the
+command's output, and hands that error over as its final answer. Only `danger-full-access` runs
+anything, because it skips bubblewrap. Hence the `sed` in the Codespace steps above;
+`codex --sandbox danger-full-access` does the same for one session. The Codespace is the sandbox.
+(Verified 2026-10-05 on a checkpoint-0 Codespace, Debian 13, CLI 0.160.0: `codex sandbox`, which
+needs no sign-in, fails for every command; signed in, `codex exec` with either form of
+`danger-full-access` ran `echo`, a 127.0.0.1 listener and `npm test`, and the run's events and
+metrics landed in `codex_exec` and `agent-metrics` with `seat`.)
+
+`codex login --device-auth` works headlessly there: it prints `https://auth.openai.com/codex/device`
+and a one-time code that expires in 15 minutes, and waits. Nothing tries to open a browser in the
+Codespace.
 
 Codex reads files with its shell tool, so its tool mix is `exec_command` (and `exec`) plus
 `apply_patch`, with no separate read tool. Why the tool-mix query needs both filters:
@@ -261,4 +284,5 @@ otherwise sit in a stopped Codespace.
 Cold-tested against the US workshop environment: Claude Code with `--settings` (2026-10-03),
 Codex under a repo-local `CODEX_HOME` and Antigravity's hooks (both 2026-10-04): events land with
 `seat`, metrics in `agent-metrics`, no prompt text, and the calculated fields resolve across all
-three. Still open: Codex login (`--device-auth`) and its sandbox inside the Codespace.
+three. In the Codespace (2026-10-05): `codex login --device-auth` prints its URL and code as
+expected, and Codex's sandbox cannot run there, so the Codespace steps set `danger-full-access`.
