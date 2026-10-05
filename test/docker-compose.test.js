@@ -27,6 +27,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { removeCopy } = require('./helpers/repo-copy.js');
+const { ON_MAIN } = require('./helpers/main-only.js');
 const { waitFor } = require('./helpers/run-script.js');
 const { dockerSkipReason, freePorts, composeCopy, docker } = require('./helpers/docker.js');
 
@@ -135,6 +136,8 @@ test('POST /judge through compose returns a verdict (replay model + pub-guide in
   assert.match(body.trace_id, /^[0-9a-f]{32}$/, raw);
 
   // No HONEYCOMB_API_KEY in the copy: spans go to the console exporter, i.e. the container log.
+  // The invoke_agent span is Module 2 work, so a checkpoint branch's app does not emit it yet.
+  if (!ON_MAIN) return;
   let logs;
   const seen = await waitFor(async () => {
     logs = await compose(['logs', '--no-color', 'roast-judge'], 30000);

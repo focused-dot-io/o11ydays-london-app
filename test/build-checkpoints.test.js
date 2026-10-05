@@ -32,6 +32,7 @@
 //    GIT_AUTHOR_* / GIT_COMMITTER_* and isolates global config with GIT_CONFIG_GLOBAL=/dev/null).
 
 const { test, after } = require('node:test');
+const { mainOnly } = require('./helpers/main-only.js');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
@@ -199,7 +200,7 @@ test('docs/checkpoints.md: mentions git 2.17 and lists every branch plus main', 
 // ---------------------------------------------------------------------------------------------
 // Git version guard
 
-test('git older than 2.17: exits 1 naming 2.17 and builds nothing', async () => {
+test('git older than 2.17: exits 1 naming 2.17 and builds nothing', mainOnly, async () => {
   assert.ok(fs.existsSync(SCRIPT), `${SCRIPT_REL} exists`);
   const { clone, base } = fixture();
   const bin = path.join(base, 'fake-bin');
@@ -220,7 +221,7 @@ test('git older than 2.17: exits 1 naming 2.17 and builds nothing', async () => 
 // ---------------------------------------------------------------------------------------------
 // End to end against a local bare remote (no network)
 
-test('push mode: builds and pushes all six branches; rerun is idempotent; --only touches one branch', async () => {
+test('push mode: builds and pushes all six branches; rerun is idempotent; --only touches one branch', mainOnly, async () => {
   assert.ok(fs.existsSync(SCRIPT), `${SCRIPT_REL} exists`);
   const { clone, bare } = fixture();
   const source = git(clone, 'rev-parse', 'HEAD').trim();
@@ -253,7 +254,7 @@ test('push mode: builds and pushes all six branches; rerun is idempotent; --only
   assertCloneUntouched(clone, source2);
 });
 
-test('--no-push: builds local branches, prints them, pushes nothing', async () => {
+test('--no-push: builds local branches, prints them, pushes nothing', mainOnly, async () => {
   assert.ok(fs.existsSync(SCRIPT), `${SCRIPT_REL} exists`);
   const { clone, bare } = fixture();
   const source = git(clone, 'rev-parse', 'HEAD').trim();

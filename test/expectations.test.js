@@ -34,6 +34,7 @@
 //  - checkpoint-3 says nothing about conversation.id, so it passes on main too.
 
 const { test, before, after } = require('node:test');
+const { mainOnly } = require('./helpers/main-only.js');
 const assert = require('node:assert/strict');
 const path = require('node:path');
 const { createHarness, ROOT } = require('./helpers/app-harness.js');
@@ -174,13 +175,13 @@ after(async () => {
 const withCheckpoint = (set) => ({ ...ctx, checkpoint: set });
 
 for (const set of ['main', 'module-2', 'checkpoint-3']) {
-  test(`expectations ${set}: every check passes on main's spans`, () => {
+  test(`expectations ${set}: every check passes on main's spans`, mainOnly, () => {
     const results = runSet(set, withCheckpoint(set));
     assert.deepEqual(failing(results), [], show(results));
   });
 }
 
-test('expectations checkpoint-4: on main, ONLY the conversation.id-absent check fails', () => {
+test('expectations checkpoint-4: on main, ONLY the conversation.id-absent check fails', mainOnly, () => {
   const results = runSet('checkpoint-4', withCheckpoint('checkpoint-4'));
   const bad = failing(results);
   assert.equal(bad.length, 1, show(results));
@@ -188,7 +189,7 @@ test('expectations checkpoint-4: on main, ONLY the conversation.id-absent check 
   assert.match(bad[0].name, /absent/i);
 });
 
-test('expectations checkpoint-2-cut: fails on main (execute_tool spans are present)', () => {
+test('expectations checkpoint-2-cut: fails on main (execute_tool spans are present)', mainOnly, () => {
   const results = runSet('checkpoint-2-cut', withCheckpoint('checkpoint-2-cut'));
   const bad = failing(results);
   assert.ok(bad.length >= 1, show(results));
@@ -196,7 +197,7 @@ test('expectations checkpoint-2-cut: fails on main (execute_tool spans are prese
 });
 
 for (const set of ['checkpoint-0', 'checkpoint-1', 'checkpoint-2']) {
-  test(`expectations ${set}: fails on main (gen_ai spans are present)`, () => {
+  test(`expectations ${set}: fails on main (gen_ai spans are present)`, mainOnly, () => {
     const results = runSet(set, withCheckpoint(set));
     assert.ok(failing(results).length >= 1, show(results));
   });

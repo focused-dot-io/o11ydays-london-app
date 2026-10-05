@@ -147,7 +147,7 @@ npm run load
 | `npm run check-spans` | "Is Module 2 done?" A judge, appeal and final turn against an in-memory exporter, checked against the Module 2 span set. Prints `PASS` or what is missing |
 | `npm run verify` | "Is this checkpoint healthy as shipped?" Checks the expectation set named in `CHECKPOINT`; `npm run verify -- <set>` checks another set |
 | `npm run catchup -- N` | Jump to checkpoint `N` (`0 1 2 2-cut 3 4`), parking your changes first |
-| `npm test` | The project's own test suite (maintainers; some tests expect the finished `main`) |
+| `npm test` | The project's own test suite. Green on every branch: the tests that only hold on the finished `main` are skipped on a checkpoint |
 
 `check-spans` and `verify` need no key and no network; nothing they do reaches Honeycomb.
 

@@ -31,6 +31,7 @@
 //    conversation.id line deleted = checkpoint-3/4 shape.
 
 const { test, after } = require('node:test');
+const { mainOnly } = require('./helpers/main-only.js');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -70,25 +71,25 @@ function assertFail(r, name) {
   assert.ok(!hasStackTrace(r.stderr), `no stack trace on stderr\n${r.describe()}`);
 }
 
-test('CHECKPOINT at the repo root is "main"', () => {
+test('CHECKPOINT at the repo root is "main"', mainOnly, () => {
   const p = path.join(ROOT, 'CHECKPOINT');
   assert.ok(fs.existsSync(p), 'CHECKPOINT exists');
   assert.equal(fs.readFileSync(p, 'utf8'), 'main\n');
 });
 
-test('verify: no argument reads CHECKPOINT and PASSes main on main', () => {
+test('verify: no argument reads CHECKPOINT and PASSes main on main', mainOnly, () => {
   assertPass(verify(ROOT), 'main');
 });
 
-test('verify module-2: PASS on main', () => {
+test('verify module-2: PASS on main', mainOnly, () => {
   assertPass(verify(ROOT, 'module-2'), 'module-2');
 });
 
-test('verify checkpoint-3: PASS on main (it says nothing about conversation.id)', () => {
+test('verify checkpoint-3: PASS on main (it says nothing about conversation.id)', mainOnly, () => {
   assertPass(verify(ROOT, 'checkpoint-3'), 'checkpoint-3');
 });
 
-test('verify checkpoint-4: FAIL on main, naming the conversation.id check only', () => {
+test('verify checkpoint-4: FAIL on main, naming the conversation.id check only', mainOnly, () => {
   const r = verify(ROOT, 'checkpoint-4');
   assertFail(r, 'checkpoint-4');
   assert.match(r.last, new RegExp(`^FAIL checkpoint-4: 1 of ${setSize('checkpoint-4')} checks failed$`), r.describe());
@@ -98,7 +99,7 @@ test('verify checkpoint-4: FAIL on main, naming the conversation.id check only',
   assert.equal(r.lines.filter((l) => l.startsWith('ok ')).length, setSize('checkpoint-4') - 1, r.describe());
 });
 
-test('verify checkpoint-0: FAIL on main (gen_ai spans present)', () => {
+test('verify checkpoint-0: FAIL on main (gen_ai spans present)', mainOnly, () => {
   const r = verify(ROOT, 'checkpoint-0');
   assertFail(r, 'checkpoint-0');
   assert.match(r.last, /^FAIL checkpoint-0: \d+ of \d+ checks failed$/, r.describe());
@@ -109,7 +110,7 @@ test('verify no-such-set: FAIL naming the set, exit 1, never crashes', () => {
   assertFail(r, 'no-such-set');
 });
 
-test('verify: CHECKPOINT=checkpoint-0 in a copy of main -> FAIL checkpoint-0; blanked tree -> PASS 0/1/2', () => {
+test('verify: CHECKPOINT=checkpoint-0 in a copy of main -> FAIL checkpoint-0; blanked tree -> PASS 0/1/2', mainOnly, () => {
   const dir = copy();
   fs.writeFileSync(path.join(dir, 'CHECKPOINT'), 'checkpoint-0\n');
   assertFail(verify(dir), 'checkpoint-0');
@@ -124,7 +125,7 @@ test('verify: CHECKPOINT=checkpoint-0 in a copy of main -> FAIL checkpoint-0; bl
   assertFail(verify(dir, 'checkpoint-2-cut'), 'checkpoint-2-cut');
 });
 
-test('verify checkpoint-2-cut: PASS on a tree with only withToolSpan blanked; main FAILs there', () => {
+test('verify checkpoint-2-cut: PASS on a tree with only withToolSpan blanked; main FAILs there', mainOnly, () => {
   const dir = copy();
   blank.blankToolSpan(dir);
   assertPass(verify(dir, 'checkpoint-2-cut'), 'checkpoint-2-cut');
@@ -132,7 +133,7 @@ test('verify checkpoint-2-cut: PASS on a tree with only withToolSpan blanked; ma
   assertFail(verify(dir, 'module-2'), 'module-2');
 });
 
-test('verify checkpoint-4: PASS on a tree without gen_ai.conversation.id; 3 PASS, main FAILs', () => {
+test('verify checkpoint-4: PASS on a tree without gen_ai.conversation.id; 3 PASS, main FAILs', mainOnly, () => {
   const dir = copy();
   blank.blankConversationId(dir);
   assertPass(verify(dir, 'checkpoint-4'), 'checkpoint-4');

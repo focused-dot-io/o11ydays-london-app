@@ -39,9 +39,9 @@ Read replay/corpus.json and services/pub-guide/pubs.json and tell me how many ro
    and ruling from that output, and runs the tests again until they pass (around 330 tests, under
    a second).
 
-Why not plain `npm test`? On the workshop branches some of the suite expects the finished `main`
-(the agent spans you write in Module 2), so the full suite is red there by design. The three files
-above are the ones that check the corpus.
+Why not plain `npm test`? It is green on your branch too, but the part of the suite that expects
+the finished `main` (the agent spans you write in Module 2) is skipped there, and the rest covers
+the whole app. The three files above are the ones that check the corpus.
 
 ## What you should see in Honeycomb
 

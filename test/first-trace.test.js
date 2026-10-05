@@ -17,6 +17,7 @@
 //    controlled env with only PATH/HOME inherited).
 
 const { test, before, after } = require('node:test');
+const { mainOnly } = require('./helpers/main-only.js');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
@@ -60,7 +61,7 @@ function runFirstTrace(env) {
   });
 }
 
-test('first-trace: prints the trace id and dataset roast-judge-<seat>; the trace exists in the app', async () => {
+test('first-trace: prints the trace id and dataset roast-judge-<seat>; the trace exists in the app', mainOnly, async () => {
   const res = await runFirstTrace({ ROASTJUDGE_URL: h.appUrl, SEAT: '0' });
   assert.equal(res.status, 0, res.info);
   const ids = res.stdout.match(HEX32_G) || [];
