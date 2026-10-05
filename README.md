@@ -88,7 +88,7 @@ PASS proves the laptop is ready. It is not a first trace: that happens in Module
 
 Your seat card has your seat number `N`. The workshop ingest key `K` is posted in the room-chat gist (link and QR on your seat card) at 1:00; copy it from there.
 
-1. **Configure** (writes `.env`; the key is never printed):
+1. **Configure** (writes `.env`):
 
    ```bash
    npm run setup -- --seat N --key K
