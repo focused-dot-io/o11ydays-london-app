@@ -7,7 +7,7 @@
 //      SEAT=0, HONEYCOMB_API_KEY=, HONEYCOMB_ENDPOINT=https://api.honeycomb.io,
 //      ROASTJUDGE_EXPORTER=otlp, REPLAY_URL=http://localhost:4200/v1, PUB_GUIDE_URL=http://localhost:4100,
 //      ROASTJUDGE_MODEL=replay, LOAD_INTERVAL_MS=4000, REPLAY_FAIL_EVERY=25
-//    HONEYCOMB_TEAM_SLUG=focusedlabs-4f and HONEYCOMB_ENV_SLUG=o11ydays-london are active defaults (shared by
+//    HONEYCOMB_TEAM_SLUG=hny-focused and HONEYCOMB_ENV_SLUG=o11ydays-london are active defaults (shared by
 //    the whole room, not secrets) so first-trace prints a direct link; the commented-out optional keys are
 //    `# OPENAI_API_KEY=` and `# OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=false`.
 //  - Every active KEY=value line is immediately preceded by a `#` comment line explaining it.
@@ -24,7 +24,7 @@ const ACTIVE = [
   'SEAT=0',
   'HONEYCOMB_API_KEY=',
   'HONEYCOMB_ENDPOINT=https://api.honeycomb.io',
-  'HONEYCOMB_TEAM_SLUG=focusedlabs-4f',
+  'HONEYCOMB_TEAM_SLUG=hny-focused',
   'HONEYCOMB_ENV_SLUG=o11ydays-london',
   'ROASTJUDGE_EXPORTER=otlp',
   'REPLAY_URL=http://localhost:4200/v1',
