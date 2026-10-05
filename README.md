@@ -86,7 +86,7 @@ PASS proves the laptop is ready. It is not a first trace: that happens in Module
 
 ## On the day: Module 0, your first trace
 
-Your seat card has your seat number `N` and the workshop ingest key `K`.
+Your seat card has your seat number `N`. The workshop ingest key `K` is posted in the room-chat gist (link and QR on your seat card) at 1:00; copy it from there.
 
 1. **Configure** (writes `.env`; the key is never printed):
 
