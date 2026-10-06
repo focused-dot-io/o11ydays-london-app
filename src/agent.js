@@ -51,7 +51,9 @@ function withAgentSpan({ conversation, promptVersion }, run) {
         'gen_ai.prompt.name': PROMPT_NAME,
         'gen_ai.prompt.version': promptVersion,
         // Module 4 track (c): a real conversation id, issued by the app
-        'gen_ai.conversation.id': conversation.id,
+        // TODO(module-4c): stamp gen_ai.conversation.id here (track c)
+        //   The app issues a real id when a judgement starts; it is on the `conversation`
+        //   argument. Never make one up. See tracks/c-agent-timeline.md.
       },
     },
     async (span) => {
