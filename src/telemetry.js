@@ -73,7 +73,9 @@ const sdk = new NodeSDK({
     new HttpInstrumentation(),
     new ExpressInstrumentation(),
     new UndiciInstrumentation(),
-    new OpenAIInstrumentation(), // Module 2: the one-liner
+    // TODO(module-2): enable the openai instrumentation here
+    //   (Module 2, bite 1: one line, using the class required at the top of this file; then send
+    //   a request and look for the `chat gpt-4.1-mini` spans)
   ],
   spanProcessors: [new InheritAttributesSpanProcessor(), exportingProcessor],
   logRecordProcessors: captureContent ? [new ContentToSpanLogProcessor()] : [],

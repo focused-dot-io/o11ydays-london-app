@@ -39,41 +39,19 @@ const errorType = (err) => (err && err.constructor && err.constructor.name) || '
 // execute_tool spans nest inside it.
 
 function withAgentSpan({ conversation, promptVersion }, run) {
-  return tracer.startActiveSpan(
-    `invoke_agent ${AGENT_NAME}`,
-    {
-      kind: SpanKind.INTERNAL,
-      // Set at creation, not later: samplers (and our inherit processor) read them at span start.
-      attributes: {
-        'gen_ai.operation.name': 'invoke_agent',
-        'gen_ai.agent.name': AGENT_NAME,
-        // Module 3: stamp the prompt version so BubbleUp can find it
-        'gen_ai.prompt.name': PROMPT_NAME,
-        'gen_ai.prompt.version': promptVersion,
-        // Module 4 track (c): a real conversation id, issued by the app
-        'gen_ai.conversation.id': conversation.id,
-      },
-    },
-    async (span) => {
-      try {
-        const verdict = await run();
-        // Module 3: the decision outcome
-        span.setAttributes({
-          'roastjudge.verdict.score': verdict.score,
-          'roastjudge.verdict.label': verdict.label,
-          'roastjudge.components_scored': verdict.components_scored,
-        });
-        return verdict;
-      } catch (err) {
-        span.recordException(err);
-        span.setStatus({ code: SpanStatusCode.ERROR, message: err.message });
-        span.setAttribute('error.type', errorType(err));
-        throw err;
-      } finally {
-        span.end();
-      }
-    },
-  );
+  // TODO(module-2): create the `invoke_agent roast-judge` span around run() (Module 2, bite 2).
+  //   - tracer.startActiveSpan(name, options, async (span) => { ... }) makes it the active span,
+  //     so the chat and execute_tool spans started inside run() nest under it
+  //   - name: `invoke_agent ${AGENT_NAME}`, kind: SpanKind.INTERNAL
+  //   - attributes, passed in the options so they exist at span start (samplers, and the inherit
+  //     processor in telemetry.js, read them there):
+  //       gen_ai.operation.name = 'invoke_agent'
+  //       gen_ai.agent.name     = AGENT_NAME
+  //   - on failure: span.recordException(err), ERROR status, error.type = errorType(err), rethrow
+  //   - always end the span (finally), and return run()'s verdict
+  //   Leave the prompt and verdict attributes for Module 3, and gen_ai.conversation.id for
+  //   Module 4 track (c).
+  return run();
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -81,30 +59,17 @@ function withAgentSpan({ conversation, promptVersion }, run) {
 // the model's request for it.
 
 function withToolSpan(tool, item, run) {
-  return tracer.startActiveSpan(
-    `execute_tool ${tool.name}`,
-    {
-      kind: SpanKind.INTERNAL,
-      attributes: {
-        'gen_ai.operation.name': 'execute_tool',
-        'gen_ai.tool.name': tool.name,
-        'gen_ai.tool.call.id': item.call_id,
-        'gen_ai.tool.type': tool.type,
-      },
-    },
-    async (span) => {
-      try {
-        return await run();
-      } catch (err) {
-        span.recordException(err);
-        span.setStatus({ code: SpanStatusCode.ERROR, message: err.message });
-        span.setAttribute('error.type', errorType(err));
-        throw err;
-      } finally {
-        span.end();
-      }
-    },
-  );
+  // TODO(module-2): create an `execute_tool <tool name>` span around run(), one per tool call.
+  //   - name: `execute_tool ${tool.name}`, kind: SpanKind.INTERNAL; return what run() returns
+  //   - attributes at span start:
+  //       gen_ai.operation.name = 'execute_tool'
+  //       gen_ai.tool.name      = the tool's name
+  //       gen_ai.tool.call.id   = the call id on `item` (ties the model's ask to this execution)
+  //       gen_ai.tool.type      = the tool's type (function / extension / datastore)
+  //   - on failure: span.recordException(err), ERROR status, error.type = errorType(err), rethrow
+  //     (`?fail=tool` makes lookup_pub fail so you can check it)
+  //   - always end the span (finally)
+  return run();
 }
 
 // ---------------------------------------------------------------------------------------------
