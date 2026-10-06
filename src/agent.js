@@ -48,21 +48,22 @@ function withAgentSpan({ conversation, promptVersion }, run) {
         'gen_ai.operation.name': 'invoke_agent',
         'gen_ai.agent.name': AGENT_NAME,
         // Module 3: stamp the prompt version so BubbleUp can find it
-        'gen_ai.prompt.name': PROMPT_NAME,
-        'gen_ai.prompt.version': promptVersion,
+        // TODO(module-3): stamp gen_ai.prompt.name and gen_ai.prompt.version here
+        //   name = PROMPT_NAME, version = the promptVersion argument (v1 or v2). Set at span start
+        //   so the processor in telemetry.js copies them onto the chat spans too.
         // Module 4 track (c): a real conversation id, issued by the app
-        'gen_ai.conversation.id': conversation.id,
+        // TODO(module-4c): stamp gen_ai.conversation.id here (track c)
+        //   The app issues a real id when a judgement starts; it is on the `conversation`
+        //   argument. Never make one up. See tracks/c-agent-timeline.md.
       },
     },
     async (span) => {
       try {
         const verdict = await run();
         // Module 3: the decision outcome
-        span.setAttributes({
-          'roastjudge.verdict.score': verdict.score,
-          'roastjudge.verdict.label': verdict.label,
-          'roastjudge.components_scored': verdict.components_scored,
-        });
+        // TODO(module-3): record the decision outcome on the span now that run() has returned:
+        //   roastjudge.verdict.score, roastjudge.verdict.label, roastjudge.components_scored
+        //   (all three are on `verdict`; app namespace, never inside gen_ai.*)
         return verdict;
       } catch (err) {
         span.recordException(err);
@@ -81,30 +82,17 @@ function withAgentSpan({ conversation, promptVersion }, run) {
 // the model's request for it.
 
 function withToolSpan(tool, item, run) {
-  return tracer.startActiveSpan(
-    `execute_tool ${tool.name}`,
-    {
-      kind: SpanKind.INTERNAL,
-      attributes: {
-        'gen_ai.operation.name': 'execute_tool',
-        'gen_ai.tool.name': tool.name,
-        'gen_ai.tool.call.id': item.call_id,
-        'gen_ai.tool.type': tool.type,
-      },
-    },
-    async (span) => {
-      try {
-        return await run();
-      } catch (err) {
-        span.recordException(err);
-        span.setStatus({ code: SpanStatusCode.ERROR, message: err.message });
-        span.setAttribute('error.type', errorType(err));
-        throw err;
-      } finally {
-        span.end();
-      }
-    },
-  );
+  // TODO(module-2): create an `execute_tool <tool name>` span around run(), one per tool call.
+  //   - name: `execute_tool ${tool.name}`, kind: SpanKind.INTERNAL; return what run() returns
+  //   - attributes at span start:
+  //       gen_ai.operation.name = 'execute_tool'
+  //       gen_ai.tool.name      = the tool's name
+  //       gen_ai.tool.call.id   = the call id on `item` (ties the model's ask to this execution)
+  //       gen_ai.tool.type      = the tool's type (function / extension / datastore)
+  //   - on failure: span.recordException(err), ERROR status, error.type = errorType(err), rethrow
+  //     (`?fail=tool` makes lookup_pub fail so you can check it)
+  //   - always end the span (finally)
+  return run();
 }
 
 // ---------------------------------------------------------------------------------------------
