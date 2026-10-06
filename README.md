@@ -1,5 +1,9 @@
 # Roast Judge
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/focused-dot-io/o11ydays-london-app/tree/checkpoint-0)
+
+**Room-chat gist** (ingest key, links): <https://gist.github.com/phoolish/5227b5f11edf70a0ac4abcdc6d2882df>
+
 The demo app for the Focused workshop at Honeycomb o11ydays London, Tue 6 Oct 2026.
 
 Roast Judge is a small AI agent that judges Sunday roasts. You describe the roast you had (where,
@@ -86,7 +90,7 @@ PASS proves the laptop is ready. It is not a first trace: that happens in Module
 
 ## On the day: Module 0, your first trace
 
-Your seat card has your seat number `N`. The workshop ingest key `K` is posted in the room-chat gist (link and QR on your seat card) at 1:00; copy it from there.
+Your seat card has your seat number `N`. The workshop ingest key `K` is posted in the [room-chat gist](https://gist.github.com/phoolish/5227b5f11edf70a0ac4abcdc6d2882df) (link and QR on your seat card) at 1:00; copy it from there.
 
 1. **Configure** (writes `.env`):
 
